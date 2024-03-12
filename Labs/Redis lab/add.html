@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Bookmark</title>
+    <link rel="stylesheet" href="add.css">
+</head>
+
+<body>
+    <h2>Add Bookmark</h2>
+
+    <form action="bookit.php" method="post" onsubmit="return validateForm()">
+        <label for="url">URL:</label>
+        <input type="url" id="url" name="url" required>
+        <br>
+
+        <label for="tags">Tags:</label>
+        <input type="text" id="tags" name="tags" pattern="[a-zA-Z0-9]+( [a-zA-Z0-9]+)*">
+        <br>
+
+        <input type="submit" value="Add Bookmark">
+    </form>
+
+
+    <script>
+        function validateForm() {
+
+            var urlInput = document.getElementById('url');
+            var tagsInput = document.getElementById('tags');
+
+            if (urlInput.validity.valid && tagsInput.validity.valid) {
+                return true;
+            } else {
+                alert('Please enter a valid URL and tags');
+                return false;
+            }
+        }
+    </script>
+
+
+</body>
+</html>
