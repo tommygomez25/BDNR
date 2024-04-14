@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bookit! Bookmark Manager</title>
+</head>
+<body>
+    <h1>Bookit! Bookmark Manager</h1>
+
+
+    <h2>Bookmarks</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bookmark in bookmarks %}
+            <tr>
+                <td><a href="/bookmark/{{ bookmark.url_md5 }}">{{ bookmark.url }}</a></td>
+                <td> {% for tag in bookmark.tags %}
+                    <a href="/tag/{{ tag }}">{{ tag }}</a>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No bookmarks found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="/add">Add a new bookmark</a>
+</body>
+</html>
