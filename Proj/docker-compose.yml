@@ -25,7 +25,6 @@ services:
     environment:
       - CLUSTER_NAME=riakkv
       - COORDINATOR_NODE=coordinator
-
 volumes:
   schemas:
     external: false
