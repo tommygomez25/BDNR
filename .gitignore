@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-./data
-/data
-./proj/data
-/proj/data
-/Proj/data
-./Proj/data
-Proj/node_modules/.bin/pbjs
-=======
+Proj/node_modules/
+Proj/.env
+Proj/package-lock.json
+Proj/docker-compose.yml
 
->>>>>>> e863e64c31e410e20d6b126408684ee788598326
