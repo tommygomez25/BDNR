@@ -1,17 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
 
 import React from 'react';
-import UserDetails from './UserDetails';
-
+import * as ReactDOM from "react-dom/client";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import UserProfile from './components/UserProfile';
 
 function App() {
-
-  const username = 'ckettoelx';
   return (
-    <div>
-      <UserDetails username={username}/>
-    </div>
+    <Router>
+      <Routes>
+        <Route path={"/user/:username"} element={<UserProfile />} />
+      </Routes>
+    </Router>
   );
 }
 

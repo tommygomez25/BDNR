@@ -21,13 +21,13 @@ var client = new Riak.Client(cluster, function (err, c) {
 async function storeUserData() {
     try {
         // Load data from JSON files
-        const usersData = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
-        const postsData = JSON.parse(fs.readFileSync('./data/posts.json', 'utf8'));
-        const commentsData = JSON.parse(fs.readFileSync('./data/comments.json', 'utf8'));
-        const messagesData = JSON.parse(fs.readFileSync('./data/messages.json', 'utf8'));
-        const chatsData = JSON.parse(fs.readFileSync('./data/chats.json', 'utf8'));
-        const followsData = JSON.parse(fs.readFileSync('./data/follows.json', 'utf8'));
-        const favoritesData = JSON.parse(fs.readFileSync('./data/favorites.json', 'utf8'));
+        const usersData = JSON.parse(fs.readFileSync('../data/users.json', 'utf8'));
+        const postsData = JSON.parse(fs.readFileSync('../data/posts.json', 'utf8'));
+        const commentsData = JSON.parse(fs.readFileSync('../data/comments.json', 'utf8'));
+        const messagesData = JSON.parse(fs.readFileSync('../data/messages.json', 'utf8'));
+        const chatsData = JSON.parse(fs.readFileSync('../data/chats.json', 'utf8'));
+        const followsData = JSON.parse(fs.readFileSync('../data/follows.json', 'utf8'));
+        const favoritesData = JSON.parse(fs.readFileSync('../data/favorites.json', 'utf8'));
 
         // Store users data
         for (let i = 0; i < usersData.length; i += 100) {
@@ -51,7 +51,7 @@ async function storeUserData() {
         const batchSize = 100;
         for (let i = 0; i < followsData.length; i += batchSize) {
             const batch = followsData.slice(i, i + batchSize);
-            await Promise.all(batch.map(follow => storeData('Follows', follow.id.toString(), follow)));
+            await Promise.all(batch.map(follow => storeDataWithSecIndex('Follows', follow.id.toString(), follow)));
         }
 
         // check if the data was actually stored in the bucket
@@ -128,24 +128,51 @@ async function storeUserData() {
 }
 
 async function storeDataWithSecIndex(bucket, key, value) {
-    try {
-        const riakObj = new Riak.Commands.KV.RiakObject();
-        riakObj.setContentType('application/json');
-        riakObj.setValue(JSON.stringify(value));
-        riakObj.addToIndex('username_bin', value.user);
-        await new Promise((resolve, reject) => {
-            client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
-                if (err) {
-                    console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-                    reject(err);
-                } else {
-                    resolve(rslt);
-                }
+
+    if (bucket === 'Follows') {
+        try {
+            const riakObj = new Riak.Commands.KV.RiakObject();
+            riakObj.setContentType('application/json');
+            riakObj.setValue(JSON.stringify(value));
+
+            riakObj.addToIndex('followerId_bin', value.followerId.toString());
+
+            riakObj.addToIndex('followedId_bin', value.followedId.toString());
+            await new Promise((resolve, reject) => {
+                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                    if (err) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                });
             });
-        });
-    } catch (err) {
-        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-        throw err;
+        } catch (err) {
+            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+            throw err;
+        }
+    }
+    else if (bucket === 'Post') {
+        try {
+            const riakObj = new Riak.Commands.KV.RiakObject();
+            riakObj.setContentType('application/json');
+            riakObj.setValue(JSON.stringify(value));
+            riakObj.addToIndex('username_bin', value.user);
+            await new Promise((resolve, reject) => {
+                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                    if (err) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                });
+            });
+        } catch (err) {
+            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+            throw err;
+        }
     }
 }
 

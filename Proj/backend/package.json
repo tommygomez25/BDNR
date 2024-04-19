@@ -8,6 +8,6 @@
     "fs": "^0.0.1-security"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "CHOKIDAR_USEPOLLING=true node server.js"
   }
 }
