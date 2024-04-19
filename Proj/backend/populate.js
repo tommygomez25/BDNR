@@ -135,9 +135,9 @@ async function storeDataWithSecIndex(bucket, key, value) {
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
 
-            riakObj.addToIndex('followerId_bin', value.followerId.toString());
+            riakObj.addToIndex('follower_bin', value.follower.toString());
 
-            riakObj.addToIndex('followedId_bin', value.followedId.toString());
+            riakObj.addToIndex('followed_bin', value.followed.toString());
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {
@@ -204,7 +204,7 @@ async function storeDataWithSecIndex(bucket, key, value) {
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
             riakObj.addToIndex('postID_bin', value.postID.toString());
-            riakObj.addToIndex('userID_bin', value.userID.toString());
+            riakObj.addToIndex('username_bin', value.username.toString());
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {

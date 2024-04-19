@@ -1,0 +1,41 @@
+/* UserProfile.css */
+.user-profile {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px;
+    width: 600px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.post-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.post-item {
+    border-bottom: 1px solid #ddd;
+    padding: 20px 0;
+}
+
+.post-content {
+    margin-bottom: 10px;
+}
+

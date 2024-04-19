@@ -39,7 +39,6 @@ var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withCallback(query_cb)
     .build();
 
-client.execute(cmd);
 */
 // get all comments for username ckettoelx using sec index
 
@@ -51,8 +50,6 @@ var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withCallback(query_cb)
     .build();
 
-client.execute(cmd);
-
 var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withBucketType('default')
     .withBucket('Favorite')
@@ -60,5 +57,24 @@ var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withIndexKey('13')
     .withCallback(query_cb)
     .build();
+
+// get using key , in user buycket
+var cmd = new Riak.Commands.KV.FetchValue.Builder()
+    .withBucketType('default')
+    .withBucket('User')
+    .withKey('adad')
+    .withCallback(function (err, rslt) {
+        if (err) {
+            throw new Error(err);
+        }
+
+        if (rslt.values.length > 0) {
+            var user = JSON.parse(rslt.values.shift().value.toString());
+            logger.info("User: '%s'", user.username);
+        }
+    })
+    .build();
+
+
 
 client.execute(cmd);

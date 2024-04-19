@@ -1,25 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const Riak = require('basho-riak-client');
-const { getUserByUsername, getPostsByUsername, getCommentsByUsername, getFavoritePostsByuserID, getNumFollowersByuserID, getNumFollowingByuserID } = require('./middleware');
-
-const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
-const cluster = new Riak.Cluster({ nodes: [node] });
-const client = new Riak.Client(cluster);
+const { getUserByUsername, getPostsByUsername, getCommentsByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername } = require('./middleware');
+const { registerUser,loginUser } = require('./controllers/authController');
 
 router.get('/user/:username', async (req, res) => {
     const username = req.params.username;
     try {
         const user = await getUserByUsername(username);
+        console.log("User: ", user  )
         const posts = await getPostsByUsername(username);
+        console.log("Posts: ", posts)
         const comments = await getCommentsByUsername(username);
-        const favoritePosts = await getFavoritePostsByuserID(user.id);
-        const followers = await getNumFollowersByuserID(user.id);
-        const following = await getNumFollowingByuserID(user.id);~
+        console.log("Comments: ", comments)
+        const favoritePosts = await getFavoritePostsByUsername(username);
+        console.log("FavoritePosts: ", favoritePosts)
+        const followers = await getNumFollowersByUsername(username);
+        console.log("Followers: ", followers)
+        const following = await getNumFollowingByUsername(username);
+        console.log("Following: ", following)
         res.send([user, posts, comments, following, followers, favoritePosts]);
     } catch (error) {
         res.status(500).send(error);
     }
 });
+
+router.post('/register', registerUser);
+
+router.post('/login', loginUser)
 
 module.exports = router;
