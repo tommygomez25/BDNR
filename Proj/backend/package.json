@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "assert": "^2.1.0",
+    "async": "^3.2.5",
+    "axios": "^1.6.8",
+    "basho-riak-client": "^2.4.0",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
