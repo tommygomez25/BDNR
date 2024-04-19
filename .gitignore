@@ -2,4 +2,5 @@ Proj/node_modules/
 Proj/.env
 Proj/package-lock.json
 Proj/docker-compose.yml
-
+Proj/frontend/node_modules
+Proj/backend/node_modules
