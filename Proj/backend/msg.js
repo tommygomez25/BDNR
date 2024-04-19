@@ -30,12 +30,34 @@ function query_cb(err, rslt) {
             }));
     }
 }
-
+/*
 var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withBucketType('default')
     .withBucket('Post')
     .withIndexName('username_bin')
     .withIndexKey('privaldl')
+    .withCallback(query_cb)
+    .build();
+
+client.execute(cmd);
+*/
+// get all comments for username ckettoelx using sec index
+
+var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
+    .withBucketType('default')
+    .withBucket('Comment')
+    .withIndexName('username_bin')
+    .withIndexKey('dcoughlanrq')
+    .withCallback(query_cb)
+    .build();
+
+client.execute(cmd);
+
+var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
+    .withBucketType('default')
+    .withBucket('Favorite')
+    .withIndexName('userId_bin')
+    .withIndexKey('13')
     .withCallback(query_cb)
     .build();
 

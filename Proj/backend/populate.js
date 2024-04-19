@@ -38,7 +38,7 @@ async function storeUserData() {
         // Store comments data
         for (let i = 0; i < commentsData.length; i += 100) {
             const batch = commentsData.slice(i, i + 100);
-            await Promise.all(batch.map(comment => storeData('Comment', comment.id.toString(), comment)));
+            await Promise.all(batch.map(comment => storeDataWithSecIndex('Comment', comment.id.toString(), comment)));
         }
 
         // Store chats data
@@ -86,7 +86,7 @@ async function storeUserData() {
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
             const batch = favoritesData.slice(i, i + batchSize);
-            await Promise.all(batch.map(favorite => storeData('Favorite', favorite.id.toString(), favorite)));
+            await Promise.all(batch.map(favorite => storeDataWithSecIndex('Favorite', favorite.id.toString(), favorite)));
         }
 
         client.fetchValue({ bucket: 'Favorite', key: '1' }, function (err, rslt) {
@@ -158,7 +158,53 @@ async function storeDataWithSecIndex(bucket, key, value) {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
-            riakObj.addToIndex('username_bin', value.user);
+            riakObj.addToIndex('username_bin', value.username);
+            await new Promise((resolve, reject) => {
+                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                    if (err) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                });
+            });
+        } catch (err) {
+            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+            throw err;
+        }
+    }
+
+    else if (bucket === 'Comment') {
+        try {
+            const riakObj = new Riak.Commands.KV.RiakObject();
+            riakObj.setContentType('application/json');
+            riakObj.setValue(JSON.stringify(value));
+            riakObj.addToIndex('username_bin', value.username);
+            await new Promise((resolve, reject) => {
+                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                    if (err) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                });
+            });
+        } catch (err) {
+            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+            throw err;
+        }
+    }
+
+    else if (bucket === 'Favorite') {
+        // sec index for postID and userID
+        try {
+            const riakObj = new Riak.Commands.KV.RiakObject();
+            riakObj.setContentType('application/json');
+            riakObj.setValue(JSON.stringify(value));
+            riakObj.addToIndex('postID_bin', value.postID.toString());
+            riakObj.addToIndex('userID_bin', value.userID.toString());
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {
