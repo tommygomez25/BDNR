@@ -6,10 +6,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UserProfile from './components/UserProfile';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
-import Home from './components/Home';
 import PostDetailed from './components/PostDetailed';
 import UpdatePost from './components/UpdatePost';
 import { TokenProvider } from './components/TokenContext';
+import NavBar from './components/NavBar';
 import axios from 'axios';
 
 
@@ -18,7 +18,7 @@ function App() {
   return (
     <TokenProvider>
       <Router>
-        <Home />
+        <NavBar />
         <Routes>
           <Route path={"/user/:username"} element={<UserProfile />} />
           <Route path={"/login"} element={<LoginForm />} />

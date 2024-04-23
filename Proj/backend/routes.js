@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getUserByUsername, getCommentsByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername } = require('./middleware');
-const { registerUser,loginUser, validateToken } = require('./controllers/authController');
+const { registerUser,loginUser, validateToken, getCurrentUser } = require('./controllers/authController');
 const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost} = require('./controllers/postController');
 const jwt = require('jsonwebtoken');
 
@@ -21,7 +21,7 @@ router.get('/user/:username', async (req, res) => {
         //console.log("Followers: ", followers)
         const following = await getNumFollowingByUsername(username);
         //console.log("Following: ", following)
-        res.send([user, posts, comments, following, followers, favoritePosts]);
+        res.status(200).send([user, posts, comments, following, followers, favoritePosts]);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -32,6 +32,8 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 
 router.post('/validate-token', validateToken);
+
+router.get('/current-user', getCurrentUser);
 
 router.post('/create-post', createPost);
 
@@ -50,7 +52,7 @@ router.get('/post/:id', async (req, res) => {
 
         post.isAuthor = post.username === username;
 
-        res.send(post);
+        res.status(200).send(post);
     } catch (error) {
         if (error.message === 'Post not found') {
             res.status(404).send(error.message);

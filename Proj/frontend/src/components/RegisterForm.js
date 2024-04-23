@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../css/RegisterForm.css';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -37,7 +38,8 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="register-form-container">
+    <form className="form-register" onSubmit={handleSubmit}>
       <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} />
       <input type="text" name="firstName" placeholder="First Name" value={formData.firstName} onChange={handleChange} />
       <input type="text" name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleChange} />
@@ -58,6 +60,7 @@ const RegisterForm = () => {
       </label>
       <button type="submit">Register</button>
     </form>
+    </div>
   );
 };
 

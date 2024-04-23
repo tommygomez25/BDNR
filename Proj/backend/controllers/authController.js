@@ -100,5 +100,26 @@ const validateToken = async (req, res) => {
     }
 }
 
+const getCurrentUser = async (req, res) => {
+    try {
+        
+        const token = req.headers.authorization.split(' ')[1];
 
-module.exports = { registerUser, loginUser, validateToken };
+        
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+        
+        const user = await getUserByUsername(decodedToken.username);
+
+        
+        res.status(200).json(user);
+
+    } catch (error) {
+        
+        console.error('Error getting current user:', error);
+        res.status(500).json({ message: 'Error getting current user' });
+    }
+};
+
+
+module.exports = { registerUser, loginUser, getCurrentUser, validateToken };
