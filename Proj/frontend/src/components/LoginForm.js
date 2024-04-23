@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { TokenContext } from './TokenContext';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const {setToken} = useContext(TokenContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/login', { username, password });
-      localStorage.setItem('token', response.data.token);
-      // Redirecionar para a página protegida após o login
-      // history.push('/protected-route');
+      const { token } = response.data;
+
+      setToken(token);
+      
+      navigate(`/user/${username}`);
+
     } catch (error) {
       console.error('Login failed:', error);
     }

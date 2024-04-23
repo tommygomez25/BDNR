@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ const RegisterForm = () => {
     messagePrivacy: true
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -27,8 +30,7 @@ const RegisterForm = () => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/register', formData);
-      // Após o registro bem-sucedido, você pode redirecionar o usuário para a página de login
-      // history.push('/login');
+      navigate('/login');
     } catch (error) {
       console.error('Registration failed:', error);
     }

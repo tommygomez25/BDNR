@@ -25,48 +25,6 @@ const getUserByUsername = (username) => {
     });
 };
 
-const getPostsByUsername = (username) => {
-    return new Promise((resolve, reject) => {
-        var posts_keys = []
-        var posts = [];
-        client.secondaryIndexQuery({ bucket: 'Post', indexName: 'username_bin', indexKey: username }, (err, rslt) => {
-            if (err) {
-                reject(err);
-            } else {
-
-                if (rslt.values.length > 0) {
-                    Array.prototype.push.apply(posts_keys,
-                        rslt.values.map(function (value) {
-                            return value.objectKey;
-                        }));
-                }
-
-                if (rslt.done) {
-                    posts_keys.forEach(function (key) {
-                        client.fetchValue({ bucket: 'Post', key: key }, (err, rslt) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                if (rslt.values.length > 0) {
-                                    const post = JSON.parse(rslt.values.shift().value.toString());
-                                    posts.push(post);
-                                }
-
-                                if (posts.length === posts_keys.length) {
-                                    resolve(posts);
-                                }
-                            }
-                        });
-                    });
-                    resolve(posts);
-                }
-            }
-        });
-    });
-};
-
-
 const getCommentsByUsername = (username) => {
     return new Promise((resolve, reject) => {
         var comments_keys = []
@@ -187,7 +145,6 @@ const getNumFollowingByUsername = (username) => {
 
 module.exports = {
     getUserByUsername,
-    getPostsByUsername,
     getCommentsByUsername,
     getFavoritePostsByUsername,
     getNumFollowersByUsername,

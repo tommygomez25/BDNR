@@ -75,6 +75,20 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
     })
     .build();
 
+// get using key , in post buycket
+var cmd = new Riak.Commands.KV.FetchValue.Builder()
+    .withBucketType('default')
+    .withBucket('Post')
+    .withKey('591997')
+    .withCallback(function (err, rslt) {
+        if (err) {
+            throw new Error(err);
+        }
 
-
+        if (rslt.values.length > 0) {
+            var post = JSON.parse(rslt.values.shift().value.toString());
+            logger.info("Post: '%s'", post.title);
+        }
+    })
+    .build();
 client.execute(cmd);

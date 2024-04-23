@@ -1,6 +1,7 @@
 // UserModel.js
 
 const Riak = require('basho-riak-client');
+const bcrypt = require('bcrypt');
 
 class User {
     constructor(username, firstName, lastName, email, password, gender, bio, phoneNumber, birthday, location, profileVisibility, messagePrivacy) {
@@ -16,6 +17,11 @@ class User {
         this.location = location;
         this.profileVisibility = profileVisibility;
         this.messagePrivacy = messagePrivacy;
+    }
+
+    encryptPassword(password) {
+        const saltRounds = 5;
+        return bcrypt.hashSync(password, saltRounds);
     }
 
     save() {

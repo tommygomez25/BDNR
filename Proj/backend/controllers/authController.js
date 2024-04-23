@@ -3,6 +3,7 @@
 const bcrypt = require('bcrypt');
 const { getUserByUsername } = require('../middleware');
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
 
 // is valid password
 const isValidPassword = async (password, hash) => {
@@ -11,7 +12,6 @@ const isValidPassword = async (password, hash) => {
 
 const registerUser = async (req, res) => {
     try {
-        console.log(req.body)
 
         const { username, firstName, lastName, email, password, gender, bio, phoneNumber, birthday, location, profileVisibility, messagePrivacy } = req.body;
         
@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
         } catch (error) {
             console.error('The user doesnt exist, proceed to register:', error);
         }
-        console.log("Passss: ", password)
+  
         const newUser = new User(
             username,
             firstName,
@@ -38,9 +38,7 @@ const registerUser = async (req, res) => {
             messagePrivacy
         );
 
-        console.log("sass")
         await newUser.save();
-        console.log("KDOWKD")
         
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -73,7 +71,10 @@ const loginUser = async (req, res) => {
         }
 
         
-        res.status(200).json({ message: 'Login successful', user });
+        const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ token });
+
     } catch (error) {
         
         console.error('Error logging in user:', error);
@@ -81,5 +82,23 @@ const loginUser = async (req, res) => {
     }
 };
 
+const validateToken = async (req, res) => {
+    try {
+        
+        const token = req.body.token;
 
-module.exports = { registerUser, loginUser };
+        
+        jwt.verify(token, process.env.JWT_SECRET);
+
+        
+        res.status(200).json({ message: 'Token is valid' });
+
+    } catch (error) {
+        
+        console.error('Error validating token:', error);
+        res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
+
+module.exports = { registerUser, loginUser, validateToken };
