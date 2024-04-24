@@ -42,3 +42,26 @@ with open('./data/followers.json', 'w') as file:
     json.dump(followers_data, file, indent=4)
 
 print("Arquivos follows.json e followers.json criados com sucesso!")
+
+# add comments, from comments.json to posts.json
+
+# Carregar dados de posts do arquivo JSON
+with open('./data/posts.json', 'r') as file:
+    posts_data = json.load(file)
+
+# Carregar dados de comments do arquivo JSON
+with open('./data/comments.json', 'r') as file:
+    comments_data = json.load(file)
+
+# Adicionar comments para cada post
+for post in posts_data:
+    post_id = post['id']
+    comments = [c for c in comments_data if c['postId'] == post_id]
+    
+    post['comments'] = comments
+
+# Salvar os dados dos posts em um arquivo JSON
+with open('./data/posts.json', 'w') as file:
+    json.dump(posts_data, file, indent=4)
+
+print("Arquivo posts.json atualizado com sucesso!")
