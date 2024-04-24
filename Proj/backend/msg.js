@@ -91,4 +91,28 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
         }
     })
     .build();
+
+var cmd = new Riak.Commands.KV.FetchValue.Builder()
+.withBucketType('default')
+.withBucket('Follows')
+.withKey('beaton9p')
+.withCallback(function (err, rslt) {
+    if (err) {
+        throw new Error(err);
+    }
+
+    if (rslt.values.length > 0) {
+        var post = JSON.parse(rslt.values.shift().value.toString());
+        logger.info("Post: '%s'", post.follows);
+    }
+    else if (rslt.values.length === 0) {
+        logger.info("No values found");
+    }
+    else if (rslt.done) {
+        logger.info("Done");
+    }
+})
+.build();
+
+
 client.execute(cmd);

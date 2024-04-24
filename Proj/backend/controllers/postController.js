@@ -61,6 +61,9 @@ const getPostsByUsername = (username) => {
                 }
 
                 if (rslt.done) {
+                    if (posts_keys.length === 0) {
+                        resolve([]);
+                    }
                     posts_keys.forEach(function (key) {
                         client.fetchValue({ bucket: 'Post', key: key }, (err, rslt) => {
                             if (err) {
@@ -72,13 +75,17 @@ const getPostsByUsername = (username) => {
                                     posts.push(post);
                                 }
 
+                                else if (rslt.values.length === 0) {
+                                    resolve([]);
+                                }
+
                                 if (posts.length === posts_keys.length) {
                                     resolve(posts);
                                 }
                             }
                         });
                     });
-                    resolve(posts);
+
                 }
             }
         });

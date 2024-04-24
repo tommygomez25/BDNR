@@ -15,10 +15,11 @@ var client = new Riak.Client(cluster, function (err, c) {
         throw new Error(err);
     }
     console.log('Connection to Riak established');
-    storeUserData();
+    storeAllData();
 });
 
-async function storeUserData() {
+
+async function storeAllData() {
     try {
         // Load data from JSON files
         const usersData = JSON.parse(fs.readFileSync('../data/users.json', 'utf8'));
@@ -27,6 +28,7 @@ async function storeUserData() {
         const messagesData = JSON.parse(fs.readFileSync('../data/messages.json', 'utf8'));
         const chatsData = JSON.parse(fs.readFileSync('../data/chats.json', 'utf8'));
         const followsData = JSON.parse(fs.readFileSync('../data/follows.json', 'utf8'));
+        const followersData = JSON.parse(fs.readFileSync('../data/followers.json', 'utf8'));
         const favoritesData = JSON.parse(fs.readFileSync('../data/favorites.json', 'utf8'));
 
         // Store users data
@@ -51,17 +53,35 @@ async function storeUserData() {
         const batchSize = 100;
         for (let i = 0; i < followsData.length; i += batchSize) {
             const batch = followsData.slice(i, i + batchSize);
-            await Promise.all(batch.map(follow => storeDataWithSecIndex('Follows', follow.id.toString(), follow)));
+            await Promise.all(batch.map(follow => storeData('Follows', follow.username, follow)));
         }
 
         // check if the data was actually stored in the bucket
-        client.fetchValue({ bucket: 'Follows', key: '1' }, function (err, rslt) {
+        client.fetchValue({ bucket: 'Follows', key: 'gwindram0' }, function (err, rslt) {
             if (err) {
                 console.error('Error reading Follows:', err);
             } else {
                 if (rslt.values.length > 0) {
                     const value = rslt.values[0].value;
                     console.log('Follows read successfully:', JSON.parse(value.toString()));
+                }
+            }
+        });
+
+        // Store followers data
+        for (let i = 0; i < followersData.length; i += batchSize) {
+            const batch = followersData.slice(i, i + batchSize);
+            await Promise.all(batch.map(follower => storeData('Followers', follower.username, follower)));
+        }
+
+        // check if the data was actually stored in the bucket
+        client.fetchValue({ bucket: 'Followers', key: 'gwindram0' }, function (err, rslt) {
+            if (err) {
+                console.error('Error reading Followers:', err);
+            } else {
+                if (rslt.values.length > 0) {
+                    const value = rslt.values[0].value;
+                    console.log('Followers read successfully:', JSON.parse(value.toString()));
                 }
             }
         });

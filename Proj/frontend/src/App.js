@@ -8,6 +8,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import PostDetailed from './components/PostDetailed';
 import UpdatePost from './components/UpdatePost';
+import Home from './components/Home';
 import { TokenProvider } from './components/TokenContext';
 import NavBar from './components/NavBar';
 import axios from 'axios';
@@ -19,6 +20,7 @@ function App() {
     <TokenProvider>
       <Router>
         <NavBar />
+        <Home />
         <Routes>
           <Route path={"/user/:username"} element={<UserProfile />} />
           <Route path={"/login"} element={<LoginForm />} />

@@ -42,6 +42,9 @@ const getCommentsByUsername = (username) => {
                 }
 
                 if (rslt.done) {
+                    if (comments_keys.length === 0) {
+                        resolve([]);
+                    }
                     comments_keys.forEach(function (key) {
                         client.fetchValue({ bucket: 'Comment', key: key }, (err, rslt) => {
                             if (err) {
@@ -53,13 +56,16 @@ const getCommentsByUsername = (username) => {
                                     comments.push(comment);
                                 }
 
+                                else if (rslt.values.length === 0) {
+                                    resolve([]);
+                                }
+
                                 if (comments.length === comments_keys.length) {
                                     resolve(comments);
                                 }
                             }
                         });
                     });
-                    resolve(comments);
                 }
             }
         });
@@ -83,6 +89,10 @@ const getFavoritePostsByUsername = (username) => {
                 }
 
                 if (rslt.done) {
+                    if (favoritePosts_keys.length === 0) {
+                        resolve([]);
+                    }
+
                     favoritePosts_keys.forEach(function (key) {
                         client.fetchValue({ bucket: 'Post', key: key }, (err, rslt) => {
                             if (err) {
@@ -93,14 +103,17 @@ const getFavoritePostsByUsername = (username) => {
                                     const post = JSON.parse(rslt.values.shift().value.toString());
                                     favoritePosts.push(post);
                                 }
-
+                                    
+                                else if (rslt.values.length === 0) {
+                                    resolve([]);
+                                }
                                 if (favoritePosts.length === favoritePosts_keys.length) {
                                     resolve(favoritePosts);
                                 }
                             }
                         });
                     });
-                    resolve(favoritePosts);
+                    //resolve(favoritePosts);
                 }
             }
         });
@@ -110,14 +123,16 @@ const getFavoritePostsByUsername = (username) => {
 const getNumFollowersByUsername = (username) => {
     return new Promise((resolve, reject) => {
         var followers = 0;
-        client.secondaryIndexQuery({ bucket: 'Follows', indexName: 'followed_bin', indexKey: username }, (err, rslt) => {
+        client.fetchValue({ bucket: 'Followers', key:username}, (err, rslt) => {
             if (err) {
                 reject(err);
             } else {
                 if (rslt.values.length > 0) {
-                    followers += rslt.values.length;
+                    followers = JSON.parse(rslt.values.shift().value.toString()).followers.length;
+                    resolve(followers);
                 }
-                if (rslt.done) {
+                else if (rslt.values.length === 0) {
+                    followers = 0;
                     resolve(followers);
                 }
             }
@@ -127,16 +142,18 @@ const getNumFollowersByUsername = (username) => {
 
 const getNumFollowingByUsername = (username) => {
     return new Promise((resolve, reject) => {
-        var following = 0;
-        client.secondaryIndexQuery({ bucket: 'Follows', indexName: 'follower_bin', indexKey: username }, (err, rslt) => {
+        var follows = 0;
+        client.fetchValue({ bucket: 'Follows', key:username}, (err, rslt) => {
             if (err) {
                 reject(err);
             } else {
                 if (rslt.values.length > 0) {
-                    following += rslt.values.length;
+                    follows = JSON.parse(rslt.values.shift().value.toString()).follows.length;
+                    resolve(follows);
                 }
-                if (rslt.done) {
-                    resolve(following);
+                else if (rslt.values.length === 0) {
+                    follows = 0;
+                    resolve(follows);
                 }
             }
         });
