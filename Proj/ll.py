@@ -12,6 +12,8 @@ reference_date = datetime(2001, 1, 1)
 for post in posts:
     post_date = datetime.strptime(post['postDate'], '%m/%d/%Y')
     age = (post_date - reference_date).days
+    
+    post['timestamp'] = age
 
     # Calcular a pontuação de popularidade
     popularity_score = post['numLikes'] + (age * 10)

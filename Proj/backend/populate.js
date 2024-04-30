@@ -117,6 +117,7 @@ async function storeDataWithSecIndex(bucket, key, value) {
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
             riakObj.addToIndex('username_bin', value.username);
+            riakObj.addToIndex('timestamp_bin', value.timestamp);
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {

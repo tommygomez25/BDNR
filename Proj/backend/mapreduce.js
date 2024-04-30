@@ -76,6 +76,37 @@ mapReduceQuery = {
     ]
 };
 
+mapReduceQuery = {
+    inputs: { bucket: 'Post','index':'timestamp_bin', 'start':'8480', 'end':'8500' },
+    query: [
+        {
+            map: {
+                language: 'erlang',
+                module: 'riak_kv_mapreduce',
+                function: 'map_object_value',
+                keep: true
+            },
+        },
+        // sort by popularityScore
+        {   
+            reduce: {
+                language: 'erlang',
+                source: `
+                    fun(Values, _Arg) ->
+                        lists:sort(fun(A, B) -> 
+                            {struct, AMap} = mochijson2:decode(A),
+                            {struct, BMap} = mochijson2:decode(B),
+                            AScore = proplists:get_value(<<"popularityScore">>, AMap),
+                            BScore = proplists:get_value(<<"popularityScore">>, BMap),
+                            AScore > BScore
+                        end, Values)
+                    end.
+                `
+            }
+        }
+    ]
+};
+
 
 
 
@@ -92,5 +123,9 @@ curl.request({ url: 'http://localhost:8098/mapred', method: 'POST', data: mapRed
     if (err) {
         throw new Error(err);
     }
-    console.log('MapReduce query result:', data);
+    //console.log('MapReduce query result:', data);
+    // parse json
+    var result = JSON.parse(data);
+    var index_0 = JSON.parse(result[0][0]);
+    console.log('MapReduce query result:', index_0);
 });

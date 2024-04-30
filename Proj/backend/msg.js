@@ -115,4 +115,26 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
 .build();
 
 
+cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
+.withBucketType('default')
+.withBucket('Post')
+.withIndexName('timestamp_bin')
+.withRange(8428, 8450)
+.withCallback(function (err, rslt) {
+    if (err) {
+        throw new Error(err);
+    }
+
+    if (rslt.done) {
+        logger.info("2i query done");
+    }
+
+    if (rslt.values.length > 0) {
+        rslt.values.forEach(function (value) {
+            logger.info("2i query key: '%s'", value.objectKey);
+        });
+    }
+})
+.build();
+
 client.execute(cmd);
