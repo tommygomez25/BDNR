@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getUserByUsername, getCommentsByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername } = require('./middleware');
+const { getUserByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername, getTotalNumLikesByUsername} = require('./controllers/userController');
 const { registerUser,loginUser, validateToken, getCurrentUser } = require('./controllers/authController');
 const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost} = require('./controllers/postController');
+const { getCommentsByUsername } = require('./controllers/commentController');
+const { getTimeline } = require('./controllers/timelineController');
 const jwt = require('jsonwebtoken');
 
 
@@ -74,6 +76,25 @@ router.delete('/post/:id', async (req, res) => {
 
 // update post
 router.put('/post/:id', updatePost);
+
+// get total num likes of user
+router.get('/num-likes', async (req, res) => {
+    const username = req.query.username;
+    const numLikes = await getTotalNumLikesByUsername(username);
+    res.status(200).send(numLikes.toString());
+});
+
+// timeline for a user
+router.get('/timeline/:username', async (req, res) => {
+    const username = req.params.username;
+    console.log("Username: ", username)
+    try {
+        const timeline = await getTimeline(username);
+        res.status(200).send(timeline);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
 
 
 module.exports = router;

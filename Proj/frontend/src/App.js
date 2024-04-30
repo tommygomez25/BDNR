@@ -11,6 +11,7 @@ import UpdatePost from './components/UpdatePost';
 import Home from './components/Home';
 import { TokenProvider } from './components/TokenContext';
 import NavBar from './components/NavBar';
+import Timeline from './components/Timeline';
 import axios from 'axios';
 
 
@@ -20,8 +21,9 @@ function App() {
     <TokenProvider>
       <Router>
         <NavBar />
-        <Home />
         <Routes>
+          <Route path={"/"} element={<Home />} />
+          <Route path={"/timeline/:username"} element={<Timeline />} />
           <Route path={"/user/:username"} element={<UserProfile />} />
           <Route path={"/login"} element={<LoginForm />} />
           <Route path={"/register"} element={<RegisterForm />} />

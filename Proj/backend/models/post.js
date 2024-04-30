@@ -1,7 +1,8 @@
 const Riak = require('basho-riak-client');
+const { post } = require('../routes');
 
 class Post {
-constructor(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username) {
+constructor(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username,comments, popularityScore) {
     this.id = id;
     this.title = title;
     this.content = content;
@@ -12,6 +13,8 @@ constructor(id, title, content, postDate, postTime, numLikes, numFavs, postPriva
     this.postPrivacy = postPrivacy;
     this.wasEdited = wasEdited;
     this.username = username;
+    this.popularityScore = popularityScore;
+    this.comments = comments;
 }
 
 save() {
@@ -28,12 +31,20 @@ save() {
             if (err) {
                 reject(err);
             } else {
-                resolve(rslt);
+                client.storeValue({ bucket: this.username, value: riakObj, key: 'post_' + this.postDate + '_' + this.postTime }, (err, rslt) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                }
+                );
             }
-        });
-    });
+        }
+        );
+    }
+    );
 }
-
 }
 
 module.exports = Post;

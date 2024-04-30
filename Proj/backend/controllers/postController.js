@@ -6,6 +6,7 @@ const cluster = new Riak.Cluster({ nodes: [node] });
 const client = new Riak.Client(cluster);
 
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 const options = {
     hour: '2-digit',
@@ -31,8 +32,11 @@ const createPost = async (req, res) => {
         const numLikes = 0;
         const numFavs = 0;
         const wasEdited = false;
+        const comments = [];
+        // popularirty score is diff between post date and 1/1/2001
+        const popularityScore = moment(postDate, 'MM/DD/YYYY').diff(moment('01/01/2001', 'MM/DD/YYYY'), 'days') * 10;
 
-        const post = new Post(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username);
+        const post = new Post(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username, comments, popularityScore);
 
         await post.save();
 
@@ -46,51 +50,36 @@ const createPost = async (req, res) => {
 
 const getPostsByUsername = (username) => {
     return new Promise((resolve, reject) => {
-        var posts_keys = []
         var posts = [];
-        client.secondaryIndexQuery({ bucket: 'Post', indexName: 'username_bin', indexKey: username }, (err, rslt) => {
+        const userBucket = username; 
+        client.listKeys({ bucket: userBucket }, (err, rslt) => {
             if (err) {
                 reject(err);
             } else {
+                const postKeys = rslt.keys.filter(key => key.startsWith('post_')); 
 
-                if (rslt.values.length > 0) {
-                    Array.prototype.push.apply(posts_keys,
-                        rslt.values.map(function (value) {
-                            return value.objectKey;
-                        }));
-                }
+                postKeys.forEach(key => {
+                    client.fetchValue({ bucket: userBucket, key: key }, (err, rslt) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            if (rslt.values.length > 0) {
+                                const post = JSON.parse(rslt.values.shift().value.toString());
+                                posts.push(post);
+                            }
+                        }
+                    });
+                });
 
                 if (rslt.done) {
-                    if (posts_keys.length === 0) {
-                        resolve([]);
-                    }
-                    posts_keys.forEach(function (key) {
-                        client.fetchValue({ bucket: 'Post', key: key }, (err, rslt) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                if (rslt.values.length > 0) {
-                                    const post = JSON.parse(rslt.values.shift().value.toString());
-                                    posts.push(post);
-                                }
-
-                                else if (rslt.values.length === 0) {
-                                    resolve([]);
-                                }
-
-                                if (posts.length === posts_keys.length) {
-                                    resolve(posts);
-                                }
-                            }
-                        });
-                    });
-
+                    resolve(posts);
                 }
             }
         });
+
     });
 };
+
 
 const getPostById = (id) => {
     return new Promise((resolve, reject) => {

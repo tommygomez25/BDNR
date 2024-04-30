@@ -1,41 +1,70 @@
 /* UserProfile.css */
+
 .user-profile {
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px;
-    width: 600px;
+    max-width: 600px;
     margin: 0 auto;
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
+    padding: 20px;
+    background-color: #f7f9fa;
+  }
+  
+  .profile-header {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
     margin-bottom: 20px;
-}
-
-.profile-header img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-right: 20px;
-}
-
-.profile-info {
-    flex: 1;
-}
-
-.post-list {
+  }
+  
+  .profile-info {
+    margin-bottom: 20px;
+  }
+  
+  .profile-info h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .profile-info p {
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+  
+  .tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .tabs button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .tabs button.active {
+    background-color: #1da1f2;
+    color: #ffffff;
+  }
+  
+  .content-list {
     list-style-type: none;
     padding: 0;
-}
-
-.post-item {
-    border-bottom: 1px solid #ddd;
-    padding: 20px 0;
-}
-
-.post-content {
+  }
+  
+  .content-list li {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
     margin-bottom: 10px;
-}
-
+  }
+  
+  .content-list li a {
+    color: #1da1f2;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    font-size: 18px;
+  }
+  

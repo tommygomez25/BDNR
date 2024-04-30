@@ -5,6 +5,7 @@ var assert = require('assert');
 var logger = require('winston');
 var fs = require('fs');
 var Riak = require('basho-riak-client');
+var http = require('http');
 var nodes = [
     new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 })
 ];
@@ -21,7 +22,7 @@ var client = new Riak.Client(cluster, function (err, c) {
 
 async function deleteAllData() {
     try {
-        const buckets = ['User', 'Comment', 'Chat', 'Follows', 'Followers', 'Message', 'Favorite', 'Post']; 
+        const buckets = ['User', 'Comment', 'Chat', 'Follows', 'Followers', 'Message', 'Favorite', 'Post'];
 
         // Iterate over each bucket and delete its contents
         await Promise.all(buckets.map(bucket => deleteBucketData(bucket)));
@@ -37,7 +38,7 @@ async function deleteBucketData(bucket) {
         // Fetch keys from the bucket
         const keys = await fetchKeys(bucket);
 
-        console.log('Keys:', keys)
+        console.log('KEYS: ', keys)
 
         // Delete each key from the bucket
         await Promise.all(keys.map(key => deleteData(bucket, key)));
@@ -51,24 +52,59 @@ async function deleteBucketData(bucket) {
 
 async function fetchKeys(bucket) {
     return new Promise((resolve, reject) => {
-        client.listKeys({ bucket: bucket }, (err, rslt) => {
-            if (err) {
-                reject(err);
+        const requestOptions = {
+            hostname: 'localhost',
+            port: 8098,
+            path: `/buckets/${bucket}/keys?keys=true`,
+            method: 'GET'
+        };
+
+        const req = http.request(requestOptions, (res) => {
+            if (res.statusCode === 200) {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    const keys = JSON.parse(data).keys;
+                    resolve(keys);
+                });
             } else {
-                resolve(rslt.keys);
+                reject(`Failed to fetch keys from bucket '${bucket}'. Status code: ${res.statusCode}`);
             }
         });
+
+        req.on('error', (err) => {
+            reject(err);
+        });
+
+        req.end();
     });
 }
 
 async function deleteData(bucket, key) {
     return new Promise((resolve, reject) => {
-        client.deleteValue({ bucket: bucket, key: key }, (err, rslt) => {
-            if (err) {
-                reject(err);
+        const requestOptions = {
+            hostname: 'localhost',
+            port: 8098,
+            path: `/buckets/${bucket}/key/${key}`,
+            method: 'DELETE'
+        };
+
+        const req = http.request(requestOptions, (res) => {
+            if (res.statusCode === 204) {
+                resolve();
             } else {
-                resolve(rslt);
+                reject(`Failed to delete data from bucket '${bucket}'. Status code: ${res.statusCode}`);
             }
         });
+
+        req.on('error', (err) => {
+            reject(err);
+        });
+
+        req.end();
     });
 }

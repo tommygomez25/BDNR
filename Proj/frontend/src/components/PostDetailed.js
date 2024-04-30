@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import '../css/PostDetailed.css';
 
 const PostDetailed = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ const PostDetailed = () => {
         const response = await axios.delete(`http://localhost:5000/post/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
         if (response.status === 204) {
           alert('Post deleted successfully');
-          setPost(null);
+          navigate('/');
         }
       } catch (error) {
         console.error('Error deleting post:', error);
@@ -43,20 +44,27 @@ const PostDetailed = () => {
   }
 
   return (
-    <div>
+    <div className='post-container'>
       {postNotFound ? (
         <p>Couldn't find post</p>
       ) : post ? (
-        <div>
+        <div className='post-details'>
           <h1>{post.title}</h1>
           <p>{post.content}</p>
-          <p>Post Date: {post.postDate}</p>
-          <p>Post Time: {post.postTime}</p>
+          <p>{post.postDate} {post.postTime}</p>
           <p>Likes: {post.numLikes}</p>
-          <p>Favorites: {post.numFavs}</p>
-          <p>Privacy: {post.postPrivacy ? 'Private' : 'Public'}</p>
-          <p>Was Edited: {post.wasEdited ? 'Yes' : 'No'}</p>
           <p>Username: {post.username}</p>
+          <div>
+            <h2>Comments:</h2>
+            {post.comments.map(comment => (
+              <div key={comment.id} className="comment">
+                <p>{comment.content}</p>
+                <p>{comment.commentDate} {comment.commentTime}</p>
+                <p>Likes: {comment.numLikes}</p>
+                <p>Username: {comment.username}</p>
+              </div>
+            ))}
+          </div>
           {post.isAuthor && (
             <>
               <button onClick={handleUpdate}>Edit Post</button>

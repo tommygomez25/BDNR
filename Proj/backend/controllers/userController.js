@@ -25,54 +25,6 @@ const getUserByUsername = (username) => {
     });
 };
 
-const getCommentsByUsername = (username) => {
-    return new Promise((resolve, reject) => {
-        var comments_keys = []
-        var comments = [];
-        client.secondaryIndexQuery({ bucket: 'Comment', indexName: 'username_bin', indexKey: username }, (err, rslt) => {
-            if (err) {
-                reject(err);
-            } else {
-
-                if (rslt.values.length > 0) {
-                    Array.prototype.push.apply(comments_keys,
-                        rslt.values.map(function (value) {
-                            return value.objectKey;
-                        }));
-                }
-
-                if (rslt.done) {
-                    if (comments_keys.length === 0) {
-                        resolve([]);
-                    }
-                    comments_keys.forEach(function (key) {
-                        client.fetchValue({ bucket: 'Comment', key: key }, (err, rslt) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                if (rslt.values.length > 0) {
-                                    const comment = JSON.parse(rslt.values.shift().value.toString());
-                                    comments.push(comment);
-                                }
-
-                                else if (rslt.values.length === 0) {
-                                    resolve([]);
-                                }
-
-                                if (comments.length === comments_keys.length) {
-                                    resolve(comments);
-                                }
-                            }
-                        });
-                    });
-                }
-            }
-        });
-    });
-}
-
-
 const getFavoritePostsByUsername = (username) => {
     return new Promise((resolve, reject) => {
         var favoritePosts_keys = []
@@ -160,10 +112,79 @@ const getNumFollowingByUsername = (username) => {
     });
 }
 
+const getUsersFollowingByUsername = (username) => {
+    return new Promise((resolve, reject) => {
+        var usersFollowing = [];
+        client.fetchValue({ bucket: 'Follows', key:username}, (err, rslt) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (rslt.values.length > 0) {
+                    usersFollowing = JSON.parse(rslt.values.shift().value.toString()).follows;
+                    resolve(usersFollowing);
+                }
+                else if (rslt.values.length === 0) {
+                    resolve(usersFollowing);
+                }
+            }
+        });
+    });
+}
+
+const getTotalNumLikesByUsername = (username) => {
+    return new Promise((resolve, reject) => {
+        var mapReduceQuery = {
+            inputs: { bucket: username, key_filters: [['matches', '.*']] },
+            query: [
+                {
+                    map: {
+                        language: 'erlang',
+                        source: `
+                            fun(RiakObject, _KeyData, _Arg) ->
+                                {struct, Map} = mochijson2:decode(riak_object:get_value(RiakObject)),
+                                NumLikes = proplists:get_value(<<"numLikes">>, Map),
+                                [NumLikes]
+                            end.
+                        `
+                    },
+                },
+                {
+                    reduce: {
+                        language: 'erlang',
+                        source: `
+                            fun(Values, _Arg) ->
+                                Res = lists:sum(Values),
+                                [Res]
+                            end.
+                        `
+                    }
+                }
+            ]
+        };
+
+
+        var mapReduceString = JSON.stringify(mapReduceQuery);
+
+
+        var curl = require('curlrequest');
+        curl.request({ url: 'http://localhost:8098/mapred', method: 'POST', data: mapReduceString, headers: { 'Content-Type': 'application/json' } }, function (err, data) {
+            if (err) {
+                reject(err);
+            }
+
+            var result = JSON.parse(data);
+
+            var numLikes = result[0];
+            resolve(numLikes);
+        });
+    });
+}
+
 module.exports = {
     getUserByUsername,
-    getCommentsByUsername,
     getFavoritePostsByUsername,
     getNumFollowersByUsername,
-    getNumFollowingByUsername
+    getNumFollowingByUsername,
+    getUsersFollowingByUsername,
+    getTotalNumLikesByUsername
 };

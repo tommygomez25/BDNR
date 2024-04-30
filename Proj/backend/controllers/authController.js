@@ -1,7 +1,7 @@
 
 
 const bcrypt = require('bcrypt');
-const { getUserByUsername } = require('../middleware');
+const { getUserByUsername } = require('../controllers/userController');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 

@@ -94,8 +94,8 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
 
 var cmd = new Riak.Commands.KV.FetchValue.Builder()
 .withBucketType('default')
-.withBucket('Follows')
-.withKey('beaton9p')
+.withBucket('Post')
+.withKey('1')
 .withCallback(function (err, rslt) {
     if (err) {
         throw new Error(err);
@@ -103,7 +103,7 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
 
     if (rslt.values.length > 0) {
         var post = JSON.parse(rslt.values.shift().value.toString());
-        logger.info("Post: '%s'", post.follows);
+        logger.info("Post: '%s'", post);
     }
     else if (rslt.values.length === 0) {
         logger.info("No values found");

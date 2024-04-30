@@ -1,0 +1,53 @@
+.post-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .post-details {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  .post-details h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .post-details p {
+    margin: 10px 0;
+  }
+  
+  .post-details button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #1da1f2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .post-details button:hover {
+    background-color: #0d8bf1;
+  }
+  
+  .post-details button:active {
+    background-color: #0b6ea9;
+  }
+  
+  .post-details button + button {
+    margin-left: 10px;
+  }
+
+  .follow-counts {
+    display: flex;
+}
+
+.follow-counts p {
+    margin-right: 20px; 
+}
+  

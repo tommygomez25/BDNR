@@ -1,4 +1,3 @@
-// UserProfile.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -12,6 +11,7 @@ function UserProfile() {
     const [activeTab, setActiveTab] = useState('posts');
     const [following, setFollowing] = useState(0);
     const [followers, setFollowers] = useState(0);
+    const [totalLikes, setTotalLikes] = useState(0);
     const { username } = useParams();
 
     useEffect(() => {
@@ -21,12 +21,14 @@ function UserProfile() {
     const fetchUserData = async (username) => {
         try {
             const response = await axios.get(`http://localhost:5000/user/${username}`);
+            const likesResponse = await axios.get(`http://localhost:5000/num-likes?username=${username}`);
             setUser(response.data[0]);
             setPosts(response.data[1]);
             setComments(response.data[2]);
             setFollowing(response.data[3]);
             setFollowers(response.data[4]);
             setFavorites(response.data[5]);
+            setTotalLikes(likesResponse.data);
         } catch (error) {
             console.error('Error while getting user details:', error);
         }
@@ -51,7 +53,10 @@ function UserProfile() {
             activeContent = (
                 <ul className="content-list">
                     {posts.map((post) => (
-                        <li key={post.id}>{post.content}</li>
+                        <li key={post.id}>
+                            <a href={`/post/${post.id}`}>{post.title}</a>
+                            {post.content}
+                            </li>
                     ))}
                 </ul>
             );
@@ -88,7 +93,19 @@ function UserProfile() {
     }
 
     return (
-        <div className="user-profile"> <div className="profile-header"> <div className="profile-info"> <h1>{user.username}</h1> <p>Nome: {user.firstName} {user.lastName}</p> <p>Email: {user.email}</p> <p>Following: {following}</p> <p>Followers: {followers}</p> </div> </div>
+        <div className="user-profile">
+            <div className="profile-header">
+                <div className="profile-info">
+                    <h1>{user.username}</h1>
+                    <p>Nome: {user.firstName} {user.lastName}</p>
+                    <p>{user.bio}</p>
+                    <div className='follow-counts'>
+                        <p><b>{following}</b> Following</p>
+                        <p><b>{followers}</b> Followers</p>
+                        <p><b>{totalLikes}</b> Likes</p>
+                    </div>
+                </div>
+            </div>
             <div className="tabs">
                 <button className={activeTab === 'posts' ? 'active' : ''} onClick={() => handleTabClick('posts')}>Posts</button>
                 <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => handleTabClick('comments')}>Comments</button>
@@ -100,3 +117,4 @@ function UserProfile() {
 }
 
 export default UserProfile;
+

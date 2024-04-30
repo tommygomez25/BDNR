@@ -37,12 +37,6 @@ async function storeAllData() {
             await Promise.all(batch.map(user => storeData('User', user.username, user)));
         }
 
-        // Store comments data
-        for (let i = 0; i < commentsData.length; i += 100) {
-            const batch = commentsData.slice(i, i + 100);
-            await Promise.all(batch.map(comment => storeDataWithSecIndex('Comment', comment.id.toString(), comment)));
-        }
-
         // Store chats data
         for (let i = 0; i < chatsData.length; i += 100) {
             const batch = chatsData.slice(i, i + 100);
@@ -56,17 +50,7 @@ async function storeAllData() {
             await Promise.all(batch.map(follow => storeData('Follows', follow.username, follow)));
         }
 
-        // check if the data was actually stored in the bucket
-        client.fetchValue({ bucket: 'Follows', key: 'gwindram0' }, function (err, rslt) {
-            if (err) {
-                console.error('Error reading Follows:', err);
-            } else {
-                if (rslt.values.length > 0) {
-                    const value = rslt.values[0].value;
-                    console.log('Follows read successfully:', JSON.parse(value.toString()));
-                }
-            }
-        });
+        await checkDataStored('Follows', 'gwindram0');
 
         // Store followers data
         for (let i = 0; i < followersData.length; i += batchSize) {
@@ -74,17 +58,7 @@ async function storeAllData() {
             await Promise.all(batch.map(follower => storeData('Followers', follower.username, follower)));
         }
 
-        // check if the data was actually stored in the bucket
-        client.fetchValue({ bucket: 'Followers', key: 'gwindram0' }, function (err, rslt) {
-            if (err) {
-                console.error('Error reading Followers:', err);
-            } else {
-                if (rslt.values.length > 0) {
-                    const value = rslt.values[0].value;
-                    console.log('Followers read successfully:', JSON.parse(value.toString()));
-                }
-            }
-        });
+        await checkDataStored('Followers', 'gwindram0');
 
         // Store messages data
         for (let i = 0; i < messagesData.length; i += batchSize) {
@@ -92,16 +66,7 @@ async function storeAllData() {
             await Promise.all(batch.map(message => storeData('Message', message.id.toString(), message)));
         }
 
-        client.fetchValue({ bucket: 'Message', key: '1' }, function (err, rslt) {
-            if (err) {
-                console.error('Error reading Message:', err);
-            } else {
-                if (rslt.values.length > 0) {
-                    const value = rslt.values[0].value;
-                    console.log('Message read successfully:', JSON.parse(value.toString()));
-                }
-            }
-        });
+        await checkDataStored('Message', '1');
 
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
@@ -109,16 +74,7 @@ async function storeAllData() {
             await Promise.all(batch.map(favorite => storeDataWithSecIndex('Favorite', favorite.id.toString(), favorite)));
         }
 
-        client.fetchValue({ bucket: 'Favorite', key: '1' }, function (err, rslt) {
-            if (err) {
-                console.error('Error reading Favorite:', err);
-            } else {
-                if (rslt.values.length > 0) {
-                    const value = rslt.values[0].value;
-                    console.log('Favorite read successfully:', JSON.parse(value.toString()));
-                }
-            }
-        });
+        await checkDataStored('Favorite', '1');
 
         // store posts data with secondary index being the user id
         for (let i = 0; i < postsData.length; i += batchSize) {
@@ -128,18 +84,24 @@ async function storeAllData() {
             }));
         }
 
-        // check if the data was actually stored in the bucket
-        client.fetchValue({ bucket: 'Post', key: '1' }, function (err, rslt) {
-            if (err) {
-                console.error('Error reading Post:', err);
-            } else {
-                if (rslt.values.length > 0) {
-                    const value = rslt.values[0].value;
-                    console.log('Post read successfully:', JSON.parse(value.toString()));
-                }
-            }
-        });
+        await checkDataStored('Post', '1');
 
+        for (const user of usersData) {
+            const userBucket = user.username;
+            const userPosts = postsData.filter(post => post.username === user.username);
+            const userComments = commentsData.filter(comment => comment.username === user.username);
+
+            for (let i = 0; i < userPosts.length; i += batchSize) {
+                const batch = userPosts.slice(i, i + batchSize);
+                await Promise.all(batch.map(post => storeData(userBucket, 'post_' +post.postDate + '_' + post.postTime, post)));
+            }
+
+            for (let i = 0; i < userComments.length; i += batchSize) {
+                const batch = userComments.slice(i, i + batchSize);
+                await Promise.all(batch.map(comment => storeData(userBucket, 'comment_' + comment.commentDate + '_' + comment.commentTime, comment)));
+            }
+            
+        }
 
         console.log('Data stored successfully.');
     } catch (err) {
@@ -149,53 +111,7 @@ async function storeAllData() {
 
 async function storeDataWithSecIndex(bucket, key, value) {
 
-    if (bucket === 'Follows') {
-        try {
-            const riakObj = new Riak.Commands.KV.RiakObject();
-            riakObj.setContentType('application/json');
-            riakObj.setValue(JSON.stringify(value));
-
-            riakObj.addToIndex('follower_bin', value.follower.toString());
-
-            riakObj.addToIndex('followed_bin', value.followed.toString());
-            await new Promise((resolve, reject) => {
-                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
-                    if (err) {
-                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-                        reject(err);
-                    } else {
-                        resolve(rslt);
-                    }
-                });
-            });
-        } catch (err) {
-            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-            throw err;
-        }
-    }
-    else if (bucket === 'Post') {
-        try {
-            const riakObj = new Riak.Commands.KV.RiakObject();
-            riakObj.setContentType('application/json');
-            riakObj.setValue(JSON.stringify(value));
-            riakObj.addToIndex('username_bin', value.username);
-            await new Promise((resolve, reject) => {
-                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
-                    if (err) {
-                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-                        reject(err);
-                    } else {
-                        resolve(rslt);
-                    }
-                });
-            });
-        } catch (err) {
-            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
-            throw err;
-        }
-    }
-
-    else if (bucket === 'Comment') {
+    if (bucket === 'Post') {
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
@@ -263,6 +179,24 @@ async function storeData(bucket, key, value) {
         });
     } catch (err) {
         console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+        throw err;
+    }
+}
+
+async function checkDataStored(bucket, key) {
+    try {
+        await new Promise((resolve, reject) => {
+            client.fetchValue({ bucket: bucket, key: key }, (err, rslt) => {
+                if (err) {
+                    console.error(`Error reading data from bucket '${bucket}' with key '${key}':`, err);
+                    reject(err);
+                } else {
+                    resolve(rslt);
+                }
+            });
+        });
+    } catch (err) {
+        console.error(`Error reading data from bucket '${bucket}' with key '${key}':`, err);
         throw err;
     }
 }
