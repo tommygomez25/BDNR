@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from './Header';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../css/PostDetailed.css';
+import '../index.css'
 
 const PostDetailed = () => {
   const { id } = useParams();
@@ -45,41 +45,43 @@ const PostDetailed = () => {
   }
 
   return (
-    <>
-      <Header />
-      <div className='post-container'>
-        {postNotFound ? (
-          <p>Couldn't find post</p>
-        ) : post ? (
-          <div className='post-details'>
-            <h1>{post.title}</h1>
-            <p>{post.content}</p>
-            <p>{post.postDate} {post.postTime}</p>
-            <p>Likes: {post.numLikes}</p>
-            <p>Username: {post.username}</p>
-            <div>
-              <h2>Comments:</h2>
-              {post.comments.map(comment => (
-                <div key={comment.id} className="comment">
-                  <p>{comment.content}</p>
-                  <p>{comment.commentDate} {comment.commentTime}</p>
-                  <p>Likes: {comment.numLikes}</p>
-                  <p>Username: {comment.username}</p>
-                </div>
-              ))}
-            </div>
-            {post.isAuthor && (
-              <>
-                <button onClick={handleUpdate}>Edit Post</button>
-                <button onClick={handleDelete}>Delete Post</button>
-              </>
-            )}
+  <>
+    <Header />
+    <div className='post-container'>
+      {postNotFound ? (
+        <p className="text-red-500">Couldn't find post</p>
+      ) : post ? (
+        <div className='m-16'>
+          <h1 className="text-2xl font-bold">{post.title}</h1>
+          <p className="text-gray-600 text-sm">by {post.username}</p>
+          <p className="text-gray-600 text-xs">{post.postDate} {post.postTime}</p>
+          <p className="text-gray-700">{post.content}</p>
+          <div className='flex gap-x-2'>
+            <p className="text-gray-600 text-xs">{post.numLikes} likes</p>
           </div>
-        ) : (
-          <p>Loading...</p>
-        )}
-      </div>
-    </>
+          <div>
+            <h2 className="text-xl font-semibold mt-4">Comments:</h2>
+            {post.comments.map(comment => (
+              <div key={comment.id} className="comment rounded p-4 mt-4 bg-neutral-200">
+                <p className="text-gray-700">{comment.content}</p>
+                <p className="text-gray-600 text-sm">by {comment.username}</p>
+                <p className="text-gray-600 text-xs">{comment.commentDate} {comment.commentTime}</p>
+                <p className="text-gray-600">{comment.numLikes} likes</p>
+              </div>
+            ))}
+          </div>
+          {post.isAuthor && (
+            <div className="mt-4">
+              <button onClick={handleUpdate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mr-2 rounded">Edit Post</button>
+              <button onClick={handleDelete} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Post</button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className="text-gray-600">Loading...</p>
+      )}
+    </div>
+  </>
 
   );
 };
