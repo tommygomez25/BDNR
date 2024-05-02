@@ -30,6 +30,12 @@ async function storeAllData() {
         const followsData = JSON.parse(fs.readFileSync('../data/follows.json', 'utf8'));
         const followersData = JSON.parse(fs.readFileSync('../data/followers.json', 'utf8'));
         const favoritesData = JSON.parse(fs.readFileSync('../data/favorites.json', 'utf8'));
+        const wordsData = JSON.parse(fs.readFileSync('../data/words.json', 'utf8'));
+
+        for (const key of Object.keys(wordsData)) {
+            const arrayData = wordsData[key];
+            await storeSet('Words', key, arrayData);
+        }
 
         // Store users data
         for (let i = 0; i < usersData.length; i += 100) {
@@ -165,6 +171,37 @@ async function storeData(bucket, key, value) {
         riakObj.setValue(JSON.stringify(value));
         await new Promise((resolve, reject) => {
             client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                if (err) {
+                    // key is string , < 100
+                    if ( parseInt(key) < 1000) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                    }
+                    
+                    reject(err);
+                } else {
+                    resolve(rslt);
+                }
+            });
+        });
+    } catch (err) {
+        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+        throw err;
+    }
+}
+
+async function storeSet(bucket, key, value) {
+    try {
+
+        const valueSet = new Set(value);
+        const riakSet = new Riak.Commands.KV.RiakObject();
+        riakSet.setContentType('application/json');
+        riakSet.setValue(value);
+    
+        await new Promise((resolve, reject) => {
+            client.storeValue({ bucket: bucket, key: key, value: riakSet }, (err, rslt) => {
+                console.log('stored: ');
+                console.log('key: ', key);
+                console.log('value: ', value);
                 if (err) {
                     // key is string , < 100
                     if ( parseInt(key) < 1000) {

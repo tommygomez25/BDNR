@@ -151,12 +151,76 @@ const updatePost = async (req, res) => {
     }
 }
 
+const getKeywordPostIds = (keyword) => {
+    return new Promise((resolve, reject) => {
+        client.fetchValue({ bucket: 'Words', key: keyword }, (err, rslt) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (rslt.values.length > 0) {
+                    const post = JSON.parse(rslt.values.shift().value.toString());
+                    resolve(post);
+                }
+                else if (rslt.values.length === 0) {
+                    console.log('Post not found');
+                    reject(new Error('Post not found'));
+                }
+            }
+        });
+    });
+};
+
+const searchPost = async (req, res) => {
+    console.log('query params: ', req.query);
+
+    // convert keywords which is comma separated into array of words
+    const arrayKeywords = req.query.keywords.split(',');
+    const keywords = arrayKeywords.map(keyword => keyword.trim());
+
+    console.log('array of keywords: ', keywords);
+
+    try {
+        // First, gather all post IDs for each keyword
+        const allPostIds = [];
+        for (const keyword of keywords) {
+            const postIds = await getKeywordPostIds(keyword);
+            console.log('post ids for ', keyword, ' : ', postIds);
+            allPostIds.push(postIds);
+        }
+
+        // Find the intersection of all post IDs
+        const intersection = allPostIds.reduce((a, b) => a.filter(c => b.includes(c)));
+        console.log('intersection of post ids: ', intersection);
+
+        // Fetch posts for the intersection of post IDs
+        const posts = [];
+        for (const postId of intersection) {
+            console.log('postId: ', postId);
+            const post = await getPostById(postId.toString());
+            posts.push(post);
+        }
+
+        // return posts array
+        res.status(200).send(posts);
+
+    } catch (error) {
+        if (error.message === 'Post not found') {
+            res.status(404).send(error.message);
+        } else {
+            res.status(500).send(error);
+        }
+    }
+}
+
+
+
 
 module.exports = {
     getPostsByUsername,
     getPostById,
     deletePostById,
     updatePost,
-    createPost
+    createPost,
+    searchPost
 };
 

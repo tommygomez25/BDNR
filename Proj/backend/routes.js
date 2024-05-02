@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getUserByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername, getTotalNumLikesByUsername} = require('./controllers/userController');
 const { registerUser,loginUser, validateToken, getCurrentUser } = require('./controllers/authController');
-const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost} = require('./controllers/postController');
+const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost, searchPost} = require('./controllers/postController');
 const { getCommentsByUsername } = require('./controllers/commentController');
 const { getTimeline } = require('./controllers/timelineController');
 const jwt = require('jsonwebtoken');
@@ -38,6 +38,8 @@ router.post('/validate-token', validateToken);
 router.get('/current-user', getCurrentUser);
 
 router.post('/create-post', createPost);
+
+router.get('/search-post', searchPost);
 
 router.get('/post/:id', async (req, res) => {
     const postId = req.params.id;

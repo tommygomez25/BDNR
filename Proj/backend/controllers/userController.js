@@ -171,7 +171,7 @@ const getTotalNumLikesByUsername = (username) => {
             if (err) {
                 reject(err);
             }
-
+            console.log("data:", data);
             var result = JSON.parse(data);
 
             var numLikes = result[0];
