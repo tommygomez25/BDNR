@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from './Header';
 import axios from 'axios';
 import '../css/CreatePost.css';
 
@@ -26,7 +27,8 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="create-post-container">
+    <>
+      <div className="create-post-container">
       <form className="create-post-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} />
@@ -37,6 +39,8 @@ const CreatePost = () => {
         <button type="submit">Create Post</button>
       </form>
     </div>
+    </>
+
   );
 }
 

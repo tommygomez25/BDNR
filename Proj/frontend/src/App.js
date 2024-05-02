@@ -1,7 +1,6 @@
 // App.js
 
 import {React, useEffect, useState} from 'react';
-import * as ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UserProfile from './components/UserProfile';
 import LoginForm from './components/LoginForm';
@@ -19,7 +18,6 @@ function App() {
   return (
     <TokenProvider>
       <Router>
-        <NavBar />
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/timeline/:username"} element={<Timeline />} />

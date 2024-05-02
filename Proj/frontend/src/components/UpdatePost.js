@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Header from './Header';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -44,15 +45,19 @@ const UpdatePost = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} />
-      <label>
-        Post Privacy:
-        <input type="checkbox" checked={postPrivacy} onChange={() => setPostPrivacy(!postPrivacy)} />
-      </label>
-      <button type="submit">Update Post</button>
-    </form>
+    <>
+      <Header />
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} />
+        <label>
+          Post Privacy:
+          <input type="checkbox" checked={postPrivacy} onChange={() => setPostPrivacy(!postPrivacy)} />
+        </label>
+        <button type="submit">Update Post</button>
+      </form>
+    </>
+
   );
 };
 

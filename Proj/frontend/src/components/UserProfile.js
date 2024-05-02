@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Header from './Header.js'
 import { useParams } from 'react-router-dom';
 import '../css/UserProfile.css';
 
@@ -93,26 +94,30 @@ function UserProfile() {
     }
 
     return (
-        <div className="user-profile">
-            <div className="profile-header">
-                <div className="profile-info">
-                    <h1>{user.username}</h1>
-                    <p>Nome: {user.firstName} {user.lastName}</p>
-                    <p>{user.bio}</p>
-                    <div className='follow-counts'>
-                        <p><b>{following}</b> Following</p>
-                        <p><b>{followers}</b> Followers</p>
-                        <p><b>{totalLikes}</b> Likes</p>
+        <>
+            <Header />
+            <div className="user-profile">
+                <div className="profile-header">
+                    <div className="profile-info">
+                        <h1>{user.username}</h1>
+                        <p>Nome: {user.firstName} {user.lastName}</p>
+                        <p>{user.bio}</p>
+                        <div className='follow-counts'>
+                            <p><b>{following}</b> Following</p>
+                            <p><b>{followers}</b> Followers</p>
+                            <p><b>{totalLikes}</b> Likes</p>
+                        </div>
                     </div>
                 </div>
+                <div className="tabs">
+                    <button className={activeTab === 'posts' ? 'active' : ''} onClick={() => handleTabClick('posts')}>Posts</button>
+                    <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => handleTabClick('comments')}>Comments</button>
+                    <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => handleTabClick('favorites')}>Favorites</button>
+                </div>
+                {activeContent}
             </div>
-            <div className="tabs">
-                <button className={activeTab === 'posts' ? 'active' : ''} onClick={() => handleTabClick('posts')}>Posts</button>
-                <button className={activeTab === 'comments' ? 'active' : ''} onClick={() => handleTabClick('comments')}>Comments</button>
-                <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => handleTabClick('favorites')}>Favorites</button>
-            </div>
-            {activeContent}
-        </div>
+        </>
+
     );
 }
 

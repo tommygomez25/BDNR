@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import Header from './Header.js'
 import '../css/Timeline.css';
 
 const Timeline = () => {
@@ -30,21 +31,25 @@ const Timeline = () => {
     }
 
     return (
-        <div className="timeline-container">
-            <h2 className="timeline-heading">Timeline for {username}</h2>
-            <div className="timeline-posts">
-                {/* Render the timeline posts */}
-                {timeline.map(post => (
-                    <div key={post.id} className="post-card">
-                        <a href={`/post/${post.id}`} className="post-title">{post.title}</a>
-                        <p className="post-content">{post.content}</p>
-                        <p className="post-date">{post.postDate}</p>
-                        <p className='post-likes'>Likes: {post.numLikes}</p>
-                        {/* Add more post details as needed */}
-                    </div>
-                ))}
+        <>
+            <Header />
+            <div className="timeline-container">
+                <h2 className="timeline-heading">Timeline for {username}</h2>
+                <div className="timeline-posts">
+                    {/* Render the timeline posts */}
+                    {timeline.map(post => (
+                        <div key={post.id} className="post-card">
+                            <a href={`/post/${post.id}`} className="post-title">{post.title}</a>
+                            <p className="post-content">{post.content}</p>
+                            <p className="post-date">{post.postDate}</p>
+                            <p className='post-likes'>Likes: {post.numLikes}</p>
+                            {/* Add more post details as needed */}
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
+        </>
+
     );
 };
 

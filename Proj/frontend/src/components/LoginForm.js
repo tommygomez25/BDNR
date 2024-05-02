@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import Header from './Header';
 import { useNavigate } from 'react-router-dom';
 import { TokenContext } from './TokenContext';
 import '../css/LoginForm.css';
@@ -26,13 +27,17 @@ const LoginForm = () => {
   };
 
   return (
-    <div className = "login-form-container">
-      <form  className = "form-login" onSubmit={handleSubmit} >
-        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}  />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}  />
-        <button type="submit" >Login</button>
-      </form>
-    </div>
+    <>
+      <Header />
+      <div className = "login-form-container">
+        <form  className = "form-login" onSubmit={handleSubmit} >
+          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}  />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}  />
+          <button type="submit" >Login</button>
+        </form>
+      </div>
+    </>
+
   );
 };
 
