@@ -171,26 +171,21 @@ const getKeywordPostIds = (keyword) => {
 };
 
 const searchPost = async (req, res) => {
-    console.log('query params: ', req.query);
 
-    // convert keywords which is comma separated into array of words
+    // Convert keywords which is comma separated into array of words
     const arrayKeywords = req.query.keywords.split(',');
     const keywords = arrayKeywords.map(keyword => keyword.trim());
-
-    console.log('array of keywords: ', keywords);
 
     try {
         // First, gather all post IDs for each keyword
         const allPostIds = [];
         for (const keyword of keywords) {
             const postIds = await getKeywordPostIds(keyword);
-            console.log('post ids for ', keyword, ' : ', postIds);
             allPostIds.push(postIds);
         }
 
         // Find the intersection of all post IDs
         const intersection = allPostIds.reduce((a, b) => a.filter(c => b.includes(c)));
-        console.log('intersection of post ids: ', intersection);
 
         // Fetch posts for the intersection of post IDs
         const posts = [];
@@ -200,7 +195,10 @@ const searchPost = async (req, res) => {
             posts.push(post);
         }
 
-        // return posts array
+        // Sort by popularity score
+        posts.sort((a, b) => b.popularityScore - a.popularityScore);
+
+        // Return posts array
         res.status(200).send(posts);
 
     } catch (error) {
@@ -211,9 +209,6 @@ const searchPost = async (req, res) => {
         }
     }
 }
-
-
-
 
 module.exports = {
     getPostsByUsername,

@@ -36,7 +36,7 @@ const Timeline = () => {
                 {/* Render the timeline posts */}
                 {timeline.map(post => (
                     <div key={post.id} className="post-card">
-                        <h3 className="post-title">{post.title}</h3>
+                        <a href={`/post/${post.id}`} className="post-title">{post.title}</a>
                         <p className="post-content">{post.content}</p>
                         <p className="post-date">{post.postDate}</p>
                         <p className='post-likes'>Likes: {post.numLikes}</p>

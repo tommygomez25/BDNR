@@ -12,8 +12,7 @@ import Home from './components/Home';
 import { TokenProvider } from './components/TokenContext';
 import NavBar from './components/NavBar';
 import Timeline from './components/Timeline';
-import axios from 'axios';
-
+import Search from './components/Search';
 
 function App() {
 
@@ -29,6 +28,7 @@ function App() {
           <Route path={"/register"} element={<RegisterForm />} />
           <Route path={"/post/:id"} element={<PostDetailed />} />
           <Route path={"/update-post/:id"} element={<UpdatePost />} />
+          <Route path={"/search"} element={<Search />} />
         </Routes>
       </Router>
     </TokenProvider>
