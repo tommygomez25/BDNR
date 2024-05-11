@@ -7,6 +7,8 @@ const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost,
 const { getCommentsByUsername } = require('./controllers/commentController');
 const { getTimeline } = require('./controllers/timelineController');
 const { createFavorite, checkFavorite, deleteFavorite, getFavorites } = require('./controllers/favoriteController');
+const { createChat, getChats } = require('./controllers/chatController');
+const { getMessagesByChatID, sendMessage } = require('./controllers/messageController');
 const jwt = require('jsonwebtoken');
 
 
@@ -110,6 +112,12 @@ router.get('/check-favorite/:id', checkFavorite);
 router.delete('/delete-favorite-post/:id', deleteFavorite);
 
 router.get('favorites', getFavorites);
+
+router.post('/create-chat', createChat);
+
+router.get('/chats/:username', getChats);
+
+router.get('/messages/:id', getMessagesByChatID);
 
 
 module.exports = router;

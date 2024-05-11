@@ -1,40 +1,21 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TokenContext } from './TokenContext';
-import axios from 'axios';
 
 const Header = () => {
 
-    const { token, setToken } = useContext(TokenContext);
-    const [currentUser, setCurrentUser] = useState(null);
+    const { token, setToken, currentUser, setCurrentUser } = useContext(TokenContext);
+
+    console.log('Token:', token);
 
     const handleLogout = () => {
         const confirmLogout = window.confirm('Are you sure you want to logout?');
         if (confirmLogout) {
             localStorage.removeItem('token');
             setToken(null);
+            setCurrentUser(null);
         }
     };
-
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/current-user', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setCurrentUser(response.data.username);
-            } catch (error) {
-                console.error('Error fetching current user:', error);
-                // reset token if error fetching current user
-                localStorage.removeItem('token');
-                setToken(null);
-            }
-        };
-
-        if (token !== "null") {
-            fetchCurrentUser();
-        }
-    }, [setToken, token]);
 
     return (
 
@@ -61,11 +42,11 @@ const Header = () => {
                             </li>
 
                             <li>
-                                {currentUser && <Link to="/messages">Messages</Link>}
+                                {currentUser && <Link to="/create-post">Create Post</Link>}
                             </li>
 
                             <li>
-                                {currentUser && <Link to="/favorites">Favorites</Link>}
+                                {currentUser && <Link to="/chats">Messages</Link>}
                             </li>
 
                             <li>
@@ -77,7 +58,7 @@ const Header = () => {
                     <div className="flex items-center gap-4">
                         <div className="sm:flex sm:gap-4">
 
-                            {currentUser && token !== "null" && 
+                            {currentUser && token !== null && 
 
                                 <button
                                     className="block rounded-md bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700/75"
@@ -87,7 +68,7 @@ const Header = () => {
                                 </button>
                             }
 
-                            {!currentUser && token === "null" && 
+                            {token === null && 
                                 <Link
                                     className="block rounded-md bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700/75"
                                     to="/login"
@@ -96,7 +77,7 @@ const Header = () => {
                                 </Link>
                             }
 
-                            {!currentUser && token === "null" &&
+                            {token === null &&
                                 <Link
                                     className="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-sky-700 transition hover:text-sky-700/75 sm:block"
                                     to="/register"

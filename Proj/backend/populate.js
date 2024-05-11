@@ -25,8 +25,8 @@ async function storeAllData() {
         const usersData = JSON.parse(fs.readFileSync('../data/users.json', 'utf8'));
         const postsData = JSON.parse(fs.readFileSync('../data/posts.json', 'utf8'));
         const commentsData = JSON.parse(fs.readFileSync('../data/comments.json', 'utf8'));
-        const messagesData = JSON.parse(fs.readFileSync('../data/messages.json', 'utf8'));
-        const chatsData = JSON.parse(fs.readFileSync('../data/chats.json', 'utf8'));
+        const messagesData = JSON.parse(fs.readFileSync('../data/user_messages.json', 'utf8'));
+        const chatsData = JSON.parse(fs.readFileSync('../data/user_chats.json', 'utf8'));
         const followsData = JSON.parse(fs.readFileSync('../data/follows.json', 'utf8'));
         const followersData = JSON.parse(fs.readFileSync('../data/followers.json', 'utf8'));
         const favoritesData = JSON.parse(fs.readFileSync('../data/favorites.json', 'utf8'));
@@ -43,14 +43,33 @@ async function storeAllData() {
             await Promise.all(batch.map(user => storeData('User', user.username, user)));
         }
 
+        // Clear chat data
+        await clearData('Chat');
+
+        console.log('Chat data cleared.');
+        console.log(chatsData.length)
+
         // Store chats data
         for (let i = 0; i < chatsData.length; i += 100) {
             const batch = chatsData.slice(i, i + 100);
-            await Promise.all(batch.map(chat => storeData('Chat', chat.id.toString(), chat)));
+            await Promise.all(batch.map(chat => storeData('Chat', chat.id, chat)));
         }
 
-        // Store follows data
+        // Check how many chats are stored
+
+        await checkDataStored('Chat', 'faylesburyci:gpaice38');
+
         const batchSize = 100;
+        // Store messages data
+        for (let i = 0; i < messagesData.length; i += batchSize) {
+            const batch = messagesData.slice(i, i + batchSize);
+            await Promise.all(batch.map(message => storeData('Message', message.id.toString(), message)));
+        }
+
+        await checkDataStored('Message', 'faylesburyci:gpaice38:1');
+        console.log('Message data stored successfully.');
+
+        // Store follows data
         for (let i = 0; i < followsData.length; i += batchSize) {
             const batch = followsData.slice(i, i + batchSize);
             await Promise.all(batch.map(follow => storeData('Follows', follow.username, follow)));
@@ -66,13 +85,6 @@ async function storeAllData() {
 
         await checkDataStored('Followers', 'gwindram0');
 
-        // Store messages data
-        for (let i = 0; i < messagesData.length; i += batchSize) {
-            const batch = messagesData.slice(i, i + batchSize);
-            await Promise.all(batch.map(message => storeData('Message', message.id.toString(), message)));
-        }
-
-        await checkDataStored('Message', '1');
 
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
@@ -199,9 +211,6 @@ async function storeSet(bucket, key, value) {
     
         await new Promise((resolve, reject) => {
             client.storeValue({ bucket: bucket, key: key, value: riakSet }, (err, rslt) => {
-                console.log('stored: ');
-                console.log('key: ', key);
-                console.log('value: ', value);
                 if (err) {
                     // key is string , < 100
                     if ( parseInt(key) < 1000) {
@@ -234,6 +243,32 @@ async function checkDataStored(bucket, key) {
         });
     } catch (err) {
         console.error(`Error reading data from bucket '${bucket}' with key '${key}':`, err);
+        throw err;
+    }
+}
+
+async function clearData(bucket) {
+    try {
+        await new Promise((resolve, reject) => {
+            client.listKeys({ bucket: bucket }, (err, rslt) => {
+                if (err) {
+                    console.error(`Error listing keys in bucket '${bucket}':`, err);
+                    reject(err);
+                } else {
+                    rslt.keys.forEach(key => {
+                        client.deleteValue({ bucket: bucket, key: key }, (err, rslt) => {
+                            if (err) {
+                                console.error(`Error deleting key '${key}' from bucket '${bucket}':`, err);
+                                reject(err);
+                            }
+                        });
+                    });
+                    resolve(rslt);
+                }
+            });
+        });
+    } catch (err) {
+        console.error(`Error clearing data from bucket '${bucket}':`, err);
         throw err;
     }
 }

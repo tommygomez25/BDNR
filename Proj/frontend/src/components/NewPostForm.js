@@ -42,8 +42,8 @@ function NewPostForm() {
     };
 
     return (
-        <div>
-            <h2>Create a New Post</h2>
+        <>
+            <h1 className='text-2xl font-semibold mt-10'>Create a New Post!</h1>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label htmlFor="title">Title:</label>
@@ -59,7 +59,8 @@ function NewPostForm() {
                 </div>
                 <button type="submit">Create Post</button>
             </form>
-        </div>
+        </>
+
     );
 }
 

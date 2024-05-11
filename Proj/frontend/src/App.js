@@ -11,6 +11,8 @@ import Home from './components/Home';
 import { TokenProvider } from './components/TokenContext';
 import Timeline from './components/Timeline';
 import Search from './components/Search';
+import Chats from './components/Chats';
+import Chat from './components/Chat';
 
 function App() {
 
@@ -26,6 +28,8 @@ function App() {
           <Route path={"/post/:id"} element={<PostDetailed />} />
           <Route path={"/update-post/:id"} element={<UpdatePost />} />
           <Route path={"/search"} element={<Search />} />
+          <Route path={"/chats/:username"} element={<Chats />} />
+          <Route path={"/chat/:id"} element={<Chat />} />
         </Routes>
       </Router>
     </TokenProvider>

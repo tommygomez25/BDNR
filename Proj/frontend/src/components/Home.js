@@ -1,18 +1,17 @@
-import Navbar from "./NavBar";
 import Header from './Header';
+import Footer from './Footer';
 import CreatePost from "./CreatePost";
 
 
 const Home = () => {
     return (
-        <>
+        <div className='h-screen flex flex-col'>
             <Header />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ maxWidth: '600px', width: '100%', padding: '20px' }}>
-                    <CreatePost />
-                </div>
+            <div className='mx-auto my-auto flex flex-col gap-y-2 w-3/12'>
+                <CreatePost />
             </div>
-        </>
+            <Footer />
+        </div>
 
     );
 }

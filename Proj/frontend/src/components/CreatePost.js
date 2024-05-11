@@ -28,17 +28,38 @@ const CreatePost = () => {
 
   return (
     <>
-      <div className="create-post-container">
-      <form className="create-post-form" onSubmit={handleSubmit}>
-        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <textarea placeholder="Content" value={content} onChange={(e) => setContent(e.target.value)} />
-        <label>
+      <h1 className='text-2xl font-semibold mt-10'>Create a New Post!</h1>
+      <form className='flex flex-col items-center gap-4 shadow-lg bg-white p-6 rounded' onSubmit={handleSubmit}>
+        <label className='flex flex-col w-full gap-y-1'>
+          Title:
+          <input 
+            type="text" 
+            placeholder="Title" 
+            value={title} 
+            onChange={(e) => setTitle(e.target.value)} 
+            className='rounded-md p-2.5 w-full border-gray-300 border'
+          />
+        </label>
+        <label className='flex flex-col w-full gap-y-1'>
+          Content:
+          <textarea 
+            placeholder="Content" 
+            value={content} 
+            onChange={(e) => setContent(e.target.value)} 
+            className='rounded-md p-2.5 w-full border-gray-300 border'
+          />
+        </label>
+        
+        <label className='flex gap-x-1 justify-start w-full'>
           Post Privacy:
           <input type="checkbox" checked={postPrivacy} onChange={() => setPostPrivacy(!postPrivacy)} />
         </label>
-        <button type="submit">Create Post</button>
+        <button 
+          type="submit"
+          className='rounded-md bg-sky-700 text-white p-2.5 w-full font-semibold transition hover:bg-sky-700/75'>
+          Create Post
+        </button>
       </form>
-    </div>
     </>
 
   );
