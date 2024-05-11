@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getUserByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, getNumFollowingByUsername, getTotalNumLikesByUsername} = require('./controllers/userController');
+const { getUserByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, 
+    getNumFollowingByUsername, getTotalNumLikesByUsername } = require('./controllers/userController');
 const { registerUser,loginUser, validateToken, getCurrentUser } = require('./controllers/authController');
-const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost, searchPost} = require('./controllers/postController');
+const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost, searchPost, likePost } = require('./controllers/postController');
 const { getCommentsByUsername } = require('./controllers/commentController');
 const { getTimeline } = require('./controllers/timelineController');
+const { createFavorite, checkFavorite, deleteFavorite, getFavorites } = require('./controllers/favoriteController');
 const jwt = require('jsonwebtoken');
 
 
@@ -86,6 +88,9 @@ router.get('/num-likes', async (req, res) => {
     res.status(200).send(numLikes.toString());
 });
 
+// like post
+router.post('/like-post/:id', likePost);
+
 // timeline for a user
 router.get('/timeline/:username', async (req, res) => {
     const username = req.params.username;
@@ -97,6 +102,14 @@ router.get('/timeline/:username', async (req, res) => {
         res.status(500).send(error);
     }
 });
+
+router.post('/add-favorite-post', createFavorite);
+
+router.get('/check-favorite/:id', checkFavorite);
+
+router.delete('/delete-favorite-post/:id', deleteFavorite);
+
+router.get('favorites', getFavorites);
 
 
 module.exports = router;

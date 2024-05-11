@@ -71,7 +71,7 @@ const loginUser = async (req, res) => {
         }
 
         
-        const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '12h' });
 
         res.status(200).json({ token });
 
@@ -104,6 +104,7 @@ const getCurrentUser = async (req, res) => {
     try {
         
         const token = req.headers.authorization.split(' ')[1];
+        console.log('Token:', token);
 
         
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);

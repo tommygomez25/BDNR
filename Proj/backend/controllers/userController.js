@@ -1,4 +1,5 @@
 const Riak = require('basho-riak-client');
+const Favorite = require('../models/favorite');
 
 const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
 const cluster = new Riak.Cluster({ nodes: [node] });
@@ -27,50 +28,48 @@ const getUserByUsername = (username) => {
 
 const getFavoritePostsByUsername = (username) => {
     return new Promise((resolve, reject) => {
-        var favoritePosts_keys = []
-        var favoritePosts = [];
-        client.secondaryIndexQuery({ bucket: 'Favorite', indexName: 'username_bin', indexKey: username }, (err, rslt) => {
+        client.fetchValue({ bucket: 'Favorite', key: username }, (err, result) => {
             if (err) {
-                reject(err);
-            } else {
-                if (rslt.values.length > 0) {
-                    Array.prototype.push.apply(favoritePosts_keys,
-                        rslt.values.map(function (value) {
-                            return value.objectKey;
-                        }));
-                }
-
-                if (rslt.done) {
-                    if (favoritePosts_keys.length === 0) {
-                        resolve([]);
-                    }
-
-                    favoritePosts_keys.forEach(function (key) {
-                        client.fetchValue({ bucket: 'Post', key: key }, (err, rslt) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                if (rslt.values.length > 0) {
-                                    const post = JSON.parse(rslt.values.shift().value.toString());
-                                    favoritePosts.push(post);
-                                }
-                                    
-                                else if (rslt.values.length === 0) {
-                                    resolve([]);
-                                }
-                                if (favoritePosts.length === favoritePosts_keys.length) {
-                                    resolve(favoritePosts);
-                                }
-                            }
-                        });
-                    });
-                    //resolve(favoritePosts);
-                }
+                return reject(err);
             }
+            if (result.values.length === 0) {
+                console.log('No favorites found');
+                return resolve([]); // No favorites found
+            }
+
+            const postIds = JSON.parse(result.values.length > 0 ? result.values[0].value.toString() : '{}');
+            console.log('Post IDs:', postIds);
+            // make postIds an array of strings
+            const postIdsArray = postIds.postIDs.map(postId => postId.toString());
+            console.log('Post IDs:', postIdsArray);
+
+            const fetchPostPromises = postIdsArray.map(postId => {
+                return new Promise((resolve, reject) => {
+                    client.fetchValue({ bucket: 'Post', key
+                        : postId }, (err, result) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        if (result.values.length === 0) {
+                            return resolve(null); // Post not found
+                        }
+                        const post = JSON.parse(result.values[0].value.toString());
+                        resolve(post);
+                    });
+                });
+            }
+            );
+
+            Promise.all(fetchPostPromises).then(posts => {
+                resolve(posts.filter(post => post !== null)); // Filtering out nulls if posts not found
+            }).catch(err => {
+                reject(err);
+            });
         });
     });
-}
+};
+
+
 
 const getNumFollowersByUsername = (username) => {
     return new Promise((resolve, reject) => {
@@ -186,5 +185,5 @@ module.exports = {
     getNumFollowersByUsername,
     getNumFollowingByUsername,
     getUsersFollowingByUsername,
-    getTotalNumLikesByUsername
+    getTotalNumLikesByUsername,
 };

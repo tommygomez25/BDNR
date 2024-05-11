@@ -9,7 +9,6 @@ import PostDetailed from './components/PostDetailed';
 import UpdatePost from './components/UpdatePost';
 import Home from './components/Home';
 import { TokenProvider } from './components/TokenContext';
-import NavBar from './components/NavBar';
 import Timeline from './components/Timeline';
 import Search from './components/Search';
 

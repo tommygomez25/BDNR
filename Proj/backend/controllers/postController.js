@@ -1,5 +1,6 @@
 const Riak = require('basho-riak-client');
 const Post = require('../models/post');
+const Favorite = require('../models/favorite');
 
 const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
 const cluster = new Riak.Cluster({ nodes: [node] });
@@ -7,6 +8,7 @@ const client = new Riak.Client(cluster);
 
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const { route } = require('../routes');
 
 const options = {
     hour: '2-digit',
@@ -136,7 +138,7 @@ const updatePost = async (req, res) => {
         post.postPrivacy = postPrivacy;
         post.wasEdited = true;
 
-        const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username);
+        const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username, post.comments, post.popularityScore);
 
         await newPost.save();
 
@@ -176,6 +178,8 @@ const searchPost = async (req, res) => {
     const arrayKeywords = req.query.keywords.split(',');
     const keywords = arrayKeywords.map(keyword => keyword.trim());
 
+    console.log('keywords: ', keywords);
+
     try {
         // First, gather all post IDs for each keyword
         const allPostIds = [];
@@ -198,8 +202,30 @@ const searchPost = async (req, res) => {
         // Sort by popularity score
         posts.sort((a, b) => b.popularityScore - a.popularityScore);
 
-        // Return posts array
-        res.status(200).send(posts);
+        res.status(200).send({ posts });
+
+
+    } catch (error) {
+        if (error.message === 'Post not found') {
+            res.status(404).send(error.message);
+        } else {
+            res.status(500).send(error);
+        }
+    }
+}
+
+const likePost = async (req, res) => {
+    const postId = req.params.id;
+
+    try {
+        const post = await getPostById(postId);
+        post.numLikes += 1;
+
+        const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username, post.comments, post.popularityScore);
+
+        await newPost.save();
+
+        res.status(200).send(newPost);
 
     } catch (error) {
         if (error.message === 'Post not found') {
@@ -216,6 +242,7 @@ module.exports = {
     deletePostById,
     updatePost,
     createPost,
-    searchPost
+    searchPost,
+    likePost
 };
 
