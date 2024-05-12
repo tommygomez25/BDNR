@@ -25,10 +25,8 @@ const TokenProvider = ({ children }) => {
   
     if(token) {
       fetchCurrentUser();
-      console.log('Token:', token);
     } else {
       setCurrentUser(null);
-      console.log('No token');
     }
   }, [token]);
 

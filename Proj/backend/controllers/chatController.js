@@ -6,13 +6,13 @@ const cluster = new Riak.Cluster({ nodes: [node] });
 const client = new Riak.Client(cluster);
 
 const createChat = async (req, res) => {
-    const { title } = req.body;
+    const { title, id } = req.body;
 
     const date = new Date();
     const dateCreated = date.toLocaleDateString();
     const timeCreated = date.toLocaleTimeString();
 
-    const chat = new Chat(title, dateCreated, timeCreated);
+    const chat = new Chat(id, title, dateCreated, timeCreated);
 
     try {
         await chat.save();

@@ -28,7 +28,7 @@ const CreatePost = () => {
 
   return (
     <>
-      <h1 className='text-2xl font-semibold mt-10'>Create a New Post!</h1>
+      <h1 className='text-2xl font-semibold'>Create a New Post!</h1>
       <form className='flex flex-col items-center gap-4 shadow-lg bg-white p-6 rounded' onSubmit={handleSubmit}>
         <label className='flex flex-col w-full gap-y-1'>
           Title:

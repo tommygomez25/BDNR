@@ -13,6 +13,7 @@ import Timeline from './components/Timeline';
 import Search from './components/Search';
 import Chats from './components/Chats';
 import Chat from './components/Chat';
+import NewChatForm from './components/NewChatForm';
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
           <Route path={"/search"} element={<Search />} />
           <Route path={"/chats/:username"} element={<Chats />} />
           <Route path={"/chat/:id"} element={<Chat />} />
+          <Route path={"/new-chat/:username"} element={<NewChatForm />} />
         </Routes>
       </Router>
     </TokenProvider>

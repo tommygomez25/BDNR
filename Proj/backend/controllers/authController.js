@@ -62,18 +62,21 @@ const loginUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        
-        const isValid = await isValidPassword(password, user.passwordHash);
+        console.log('User:', user);
 
-        
-        if (!isValid) {
-            return res.status(401).json({ message: 'Invalid password' });
+        if(user.passwordHash === undefined){
+            const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '12h' });
+            res.status(200).json({ token });
+        } else {
+            const isValid = await isValidPassword(password, user.passwordHash);
+
+            
+            if (!isValid) {
+                return res.status(401).json({ message: 'Invalid password' });
+            }
+            const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '12h' });
+            res.status(200).json({ token });
         }
-
-        
-        const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '12h' });
-
-        res.status(200).json({ token });
 
     } catch (error) {
         

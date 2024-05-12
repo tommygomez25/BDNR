@@ -113,11 +113,13 @@ router.delete('/delete-favorite-post/:id', deleteFavorite);
 
 router.get('favorites', getFavorites);
 
-router.post('/create-chat', createChat);
+router.put('/create-chat', createChat);
 
 router.get('/chats/:username', getChats);
 
 router.get('/messages/:id', getMessagesByChatID);
+
+router.post('/send-message', sendMessage);
 
 
 module.exports = router;

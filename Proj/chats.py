@@ -36,6 +36,8 @@ for message in messages:
     
     # Store in the message if the chatID + ":" + message['id']
     message['id'] = f"{chatID}:{message['id']}"
+    message['senderID'] = sender
+    message['receiverID'] = receiver
     
 # Save messages to new JSON file
 with open('./data/user_messages.json', 'w') as f:
@@ -51,10 +53,4 @@ for chat in chats:
 # Save chats to new JSON file
 with open('./data/user_chats.json', 'w') as f:
     json.dump(chats, f, indent=4)
-    
-    
-    
-
-        
-    
     

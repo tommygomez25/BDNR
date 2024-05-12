@@ -1,13 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { TokenContext } from './TokenContext';
 
 const Header = () => {
 
     const { token, setToken, currentUser, setCurrentUser } = useContext(TokenContext);
-
-    console.log('Token:', token);
-
     const handleLogout = () => {
         const confirmLogout = window.confirm('Are you sure you want to logout?');
         if (confirmLogout) {
@@ -46,7 +43,7 @@ const Header = () => {
                             </li>
 
                             <li>
-                                {currentUser && <Link to="/chats">Messages</Link>}
+                                {currentUser && <Link to={`/chats/${currentUser}`}>Messages</Link>}
                             </li>
 
                             <li>

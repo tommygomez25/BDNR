@@ -139,7 +139,13 @@ function UserProfile() {
             <div className="shadow-lg bg-white p-4 my-4 my-auto mx-auto w-7/12 rounded">
                 <div className="profile-header">
                     <div className='flex flex-col'>
-                        <h1 className='text-3xl text-sky-700'>{user.username}</h1>
+                        <div className='flex justify-between'>
+                            <h1 className='text-3xl text-sky-700'>{user.username}</h1>
+                            {currentUser !== user.username && (
+                                <a href={`/new-chat/${username}`} className='block rounded-md bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700/75'>Send Message</a>
+                            )}
+                        </div>
+
                         <p className='text-xl italic'>{user.bio}</p>
                         <div className='flex gap-x-7 text-neutral-400 text-md'>
                             <div className='flex gap-x-1'>

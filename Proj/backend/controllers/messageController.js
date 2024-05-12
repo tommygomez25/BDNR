@@ -9,6 +9,7 @@ const getMessagesByChatID = async (req, res) => {
     const chatID = req.params.id;
     try {
         const messages = await Message.getMessagesByChatID(chatID);
+        console.log('Messages?:', messages);
         res.status(200).send(messages);
 
     } catch (error) {
@@ -17,10 +18,21 @@ const getMessagesByChatID = async (req, res) => {
 };
 
 const sendMessage = async (req, res) => {
-    const { id, content, dateSent, timeSent, sender, receiver, chatID } = req.body;
+    const { id, content, sender, receiver } = req.body;
+    const date = new Date();
+    const dateSent = date.toLocaleDateString();
+    const timeSent = date.toLocaleTimeString();
+
+    console.log('Date:', dateSent);
+    console.log('Time:', timeSent);
+    console.log('Sender:', sender);
+    console.log('Receiver:', receiver);
+    console.log('Content:', content);
+    console.log('ID:', id);
 
     try {
-        await Message.sendMessage(id, content, dateSent, timeSent, sender, receiver, chatID);
+        await Message.sendMessage(id, content, dateSent, timeSent, sender, receiver);
+        console.log('Message sent!');
         res.status(201).send();
 
     } catch (error) {

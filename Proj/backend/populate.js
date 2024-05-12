@@ -60,6 +60,8 @@ async function storeAllData() {
         await checkDataStored('Chat', 'faylesburyci:gpaice38');
 
         const batchSize = 100;
+
+
         // Store messages data
         for (let i = 0; i < messagesData.length; i += batchSize) {
             const batch = messagesData.slice(i, i + batchSize);
