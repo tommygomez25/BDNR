@@ -223,11 +223,12 @@ async function storeData(bucket, key, value) {
 
 async function storeSet(bucket, key, value) {
     try {
-
-        const valueSet = new Set(value);
         const riakSet = new Riak.Commands.KV.RiakObject();
         riakSet.setContentType('application/json');
         riakSet.setValue(value);
+
+        // key to lower case
+        key = key.toLowerCase();
     
         await new Promise((resolve, reject) => {
             client.storeValue({ bucket: bucket, key: key, value: riakSet }, (err, rslt) => {

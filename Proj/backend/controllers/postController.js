@@ -1,6 +1,6 @@
 const Riak = require('basho-riak-client');
 const Post = require('../models/post');
-const Favorite = require('../models/favorite');
+const Word = require('../models/word');
 
 const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
 const cluster = new Riak.Cluster({ nodes: [node] });
@@ -42,6 +42,34 @@ const createPost = async (req, res) => {
         const post = new Post(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username, comments, popularityScore);
 
         await post.save();
+
+        // break title into array of words
+        const titleWords = [...new Set(title.split(' '))];
+        console.log('titleWords: ', titleWords);
+
+        // for each word check if they have an entry in the Words bucket
+        // if they do, append the post id to the list of post ids
+        // if they don't, create a new entry with the post id
+        titleWords.forEach(async word => {
+            const wordKey = word.toLowerCase();
+            try {
+                const postIds = await getKeywordPostIds(wordKey);
+                console.log('postIds: ', postIds);
+                console.log('post.id: ', post.id);
+                postIds.push(post.id);
+                const uniquePostIds = [...new Set(postIds)];
+                const newWord = new Word(wordKey, uniquePostIds);
+                await newWord.save();
+            } catch (error) {
+                if (error.message === 'Post not found') {
+                    const newWord = new Word(wordKey, [post.id]);
+                    await newWord.save();
+                }
+            }
+        });
+
+                
+
 
         console.log(post);
         res.status(201).send(post);
@@ -145,7 +173,61 @@ const updatePost = async (req, res) => {
             return;
         }
 
+        console.log('old title: ', post.title);
+        console.log('new title: ', req.body.title);
+
         const { title, content, postPrivacy } = req.body;
+
+        if ( title !== post.title ) {
+            // break old title into array of words
+            const oldTitleWords = post.title.split(' ');
+
+            // break new title into array of words
+            const newTitleWords = title.split(' ');
+
+            // remove from old title words any words that are in new title words
+            const wordsToRemove = oldTitleWords.filter(word => !newTitleWords.includes(word));
+
+            console.log('wordsToRemove: ', wordsToRemove);
+
+            // for each word in words to remove, remove the post id from the list of post ids
+            wordsToRemove.forEach(async word => {
+                const wordKey = word.toLowerCase();
+                try {
+                    const postIds = await getKeywordPostIds(wordKey);
+                    const index = postIds.indexOf(post.id);
+                    if (index > -1) {
+                        postIds.splice(index, 1);
+                    }
+                    const newWord = new Word(wordKey, postIds);
+                    await newWord.save();
+                } catch (error) {
+                    if (error.message === 'Post not found') {
+                        // do nothing
+                    }
+                }
+            });
+
+            // for each word in new title words, check if they have an entry in the Words bucket
+            // if they do, append the post id to the list of post ids
+            // if they don't, create a new entry with the post id
+            newTitleWords.forEach(async word => {
+                const wordKey = word.toLowerCase();
+                try {
+                    const postIds = await getKeywordPostIds(wordKey);
+                    postIds.push(post.id);
+                    const uniquePostIds = [...new Set(postIds)];
+                    const newWord = new Word(wordKey, uniquePostIds);
+                    await newWord.save();
+                } catch (error) {
+                    if (error.message === 'Post not found') {
+                        const newWord = new Word(wordKey, [post.id]);
+                        await newWord.save();
+                    }
+                }
+            });
+
+        }
 
         post.title = title;
         post.content = content;
@@ -155,6 +237,8 @@ const updatePost = async (req, res) => {
         const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username, post.comments, post.popularityScore);
 
         await newPost.save();
+
+
 
         res.status(200).send(newPost);
 
@@ -168,6 +252,7 @@ const updatePost = async (req, res) => {
 }
 
 const getKeywordPostIds = (keyword) => {
+    keyword = keyword.toLowerCase();
     return new Promise((resolve, reject) => {
         client.fetchValue({ bucket: 'Words', key: keyword }, (err, rslt) => {
             if (err) {
@@ -179,6 +264,7 @@ const getKeywordPostIds = (keyword) => {
                 }
                 else if (rslt.values.length === 0) {
                     console.log('Post not found');
+                    resolve([]);
                     reject(new Error('Post not found'));
                 }
             }

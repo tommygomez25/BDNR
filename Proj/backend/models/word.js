@@ -12,27 +12,25 @@ save() {
     const cluster = new Riak.Cluster({ nodes: [node] });
     const client = new Riak.Client(cluster);
 
-    const riakObj = new Riak.Commands.KV.RiakObject();
-    riakObj.setContentType('application/json');
-    riakObj.setValue(JSON.stringify(this.posts));
+    const riakSet = new Riak.Commands.KV.RiakObject();
+    riakSet.setContentType('application/json');
+    riakSet.setValue(this.posts);
+
     return new Promise((resolve, reject) => {
-        client.storeValue({ bucket: 'Word', value: riakObj, key: this.id.toString() }, (err, rslt) => {
+        client.storeValue({ bucket: 'Words', key: this.word, value: riakSet }, (err, rslt) => {
             if (err) {
+                // key is string , < 100
+                if ( parseInt(key) < 1000) {
+                    console.error(`Error storing data in bucket 'words' with key '${this.word}':`, err);
+                }
+                
                 reject(err);
             } else {
-                client.storeValue({ bucket: 'Word', value: riakObj, key: this.word }, (err, rslt) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(rslt);
-                    }
-                }
-                );
+                console.log(`Data stored in bucket bucket 'words' with key '${this.word}' and value '${this.posts}'`);
+                resolve(rslt);
             }
-        }
-        );
-    }
-    );
+        });
+    });
 }
 }
 
