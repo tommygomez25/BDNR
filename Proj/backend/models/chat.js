@@ -14,9 +14,14 @@ class Chat {
         const cluster = new Riak.Cluster({ nodes: [node] });
         const client = new Riak.Client(cluster);
 
+        const users = this.id.split(':');
+
         const riakObj = new Riak.Commands.KV.RiakObject();
         riakObj.setContentType('application/json');
         riakObj.setValue(JSON.stringify(this));
+
+        riakObj.addToIndex('user1_bin', users[0]);
+        riakObj.addToIndex('user2_bin', users[1]);
 
         return new Promise((resolve, reject) => {
             client.storeValue({ bucket: 'Chat', value: riakObj, key: this.id.toString() }, (err, rslt) => {
@@ -27,6 +32,49 @@ class Chat {
                 }
             });
         });
+    }
+
+    static getChatKeysByUsername(username) {
+        const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
+        const cluster = new Riak.Cluster({ nodes: [node] });
+        const client = new Riak.Client(cluster);
+
+        const pushKeys = [];
+        
+        return new Promise((resolve, reject) => {
+            client.secondaryIndexQuery({ bucket: 'Chat', indexName: 'users_bin', indexKey: username }, (err, rslt) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    console.log("Rslt:", rslt);
+                    rslt.values.forEach(value => {
+                        pushKeys.push(value.objectKey);
+                    });
+    
+                    if(rslt.done) {
+                        resolve(pushKeys);
+                    }
+                }
+            });
+        });
+    };
+
+    static getChatById(id) {
+        const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
+        const cluster = new Riak.Cluster({ nodes: [node] });
+        const client = new Riak.Client(cluster);
+
+        return new Promise((resolve, reject) => {
+            client.fetchValue({ bucket: 'Chat', key: id }, (err, rslt) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const chat = JSON.parse(rslt.values.shift().value.toString());
+                    resolve(chat);
+                }
+            });
+        }
+        );
     }
 
     static getChatByUsername(username) {

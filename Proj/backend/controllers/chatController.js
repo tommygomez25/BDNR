@@ -25,15 +25,18 @@ const createChat = async (req, res) => {
 
 const getChats = async (req, res) => {
     const { username } = req.params;
-    console.log('Username:!', username);
-    try {
-        const chats = await Chat.getChatByUsername(username);
-        console.log('Chats:', chats);   
-        res.status(200).send(chats);
+    const chats = [];
+    const chatKeys = await Chat.getChatKeysByUsername(username);
 
-    } catch (error) {
-        res.status(400).send(error);
+    console.log('chatKeys: ', chatKeys);
+
+    for(const key of chatKeys) {
+        const chat = await Chat.getChatById(key);
+        console.log('chat: ', chat);
+        chats.push(chat);
     }
-}
+
+    res.status(200).send(chats);
+};
 
 module.exports = { createChat, getChats };

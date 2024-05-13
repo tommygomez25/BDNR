@@ -58,7 +58,7 @@ async function storeAllData() {
         // Store chats data
         for (let i = 0; i < chatsData.length; i += 100) {
             const batch = chatsData.slice(i, i + 100);
-            await Promise.all(batch.map(chat => storeData('Chat', chat.id, chat)));
+            await Promise.all(batch.map(chat => storeDataWithSecIndex('Chat', chat.id, chat)));
         }
 
         // Check how many chats are stored
@@ -179,6 +179,32 @@ async function storeDataWithSecIndex(bucket, key, value) {
             riakObj.setValue(JSON.stringify(value));
             riakObj.addToIndex('postID_bin', value.postID.toString());
             riakObj.addToIndex('username_bin', value.username.toString());
+            await new Promise((resolve, reject) => {
+                client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
+                    if (err) {
+                        console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+                        reject(err);
+                    } else {
+                        resolve(rslt);
+                    }
+                });
+            });
+        } catch (err) {
+            console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
+            throw err;
+        }
+    }
+
+    else if (bucket === 'Chat') {
+        // sec index for user1 and user2
+        try {
+            const riakObj = new Riak.Commands.KV.RiakObject();
+            riakObj.setContentType('application/json');
+            riakObj.setValue(JSON.stringify(value));
+            // split key to get user1 and user2
+            const users = key.split(':');
+            riakObj.addToIndex('users_bin', users[0]);
+            riakObj.addToIndex('users_bin', users[1]);
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {

@@ -73,56 +73,41 @@ class Message {
         const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
         const cluster = new Riak.Cluster({ nodes: [node] });
         const client = new Riak.Client(cluster);
-
-        console.log('chatID:', chatID);
         let messages = [];
-
-        return new Promise((resolve, reject) => {
-            client.listKeys({ bucket: 'Message' }, (err, rslt) => {
+        let messageID = 1;
+        let isFetchingComplete = false;
+    
+        function fetchNextMessage() {
+            client.fetchValue({ bucket: 'Message', key: chatID + ':' + messageID }, (err, rslt) => {
                 if (err) {
-                    reject(err);
+                    console.error(err);
+                    isFetchingComplete = true;
+                    return;
+                }
+                if (rslt.values.length === 0) {
+                    isFetchingComplete = true;
+                    return;
                 } else {
-                    let processedKeys = 0;
-
-                    if (rslt.keys.length === 0) {
-                        console.log("No keys found");
-                        console.log("===");
-                        console.log("Processed keys:", processedKeys);
-                        console.log("Messages:", messages);
-                        resolve(messages);  // Resolve with empty array if no keys found
-                    }
-
-                    rslt.keys.forEach(key => {
-                        key = key.toString();
-                        const parts = key.split(':');
-                        const left = parts[0];
-                        const right = parts[1];
-                        const id = parts[2];
-                        
-                        // join left and right to form chatID
-                        const keyChatID = left + ':' + right;
-
-                        if(keyChatID === chatID) {
-                            
-                            client.fetchValue({ bucket: 'Message', key: key }, (err, rslt) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    const message = JSON.parse(rslt.values.shift().value.toString('utf8'));
-                                    messages.push(message);
-                                    processedKeys++;
-                                }
-                            });
-                        }
-
-
-                    });
+                    const message = JSON.parse(rslt.values.shift().value.toString('utf8'));
+                    messages.push(message);
+                    messageID++;
+                    // Fetch the next message
+                    fetchNextMessage();
                 }
             });
+        }
+    
+        fetchNextMessage();
+
+        return new Promise((resolve) => {
+            const checkCompletion = setInterval(() => {
+                if (isFetchingComplete) {
+                    clearInterval(checkCompletion);
+                    resolve(messages);
+                }
+            }, 100);
         });
-
-    }
-
+    };
 }
 
 module.exports = Message;

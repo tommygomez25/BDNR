@@ -17,6 +17,7 @@ const getMessagesByChatID = async (req, res) => {
     }
 };
 
+
 const sendMessage = async (req, res) => {
     const { id, content, sender, receiver } = req.body;
     const date = new Date();
