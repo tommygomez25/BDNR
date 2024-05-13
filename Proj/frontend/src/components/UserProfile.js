@@ -34,6 +34,7 @@ function UserProfile() {
             setFollowers(response.data[4]);
             setFavorites(response.data[5]);
             setTotalLikes(likesResponse.data);
+            console.log('Posts:', response.data[1]);
         } catch (error) {
             console.error('Error while getting user details:', error);
         }

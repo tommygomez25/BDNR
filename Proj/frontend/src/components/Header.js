@@ -18,7 +18,7 @@ const Header = () => {
 
         <header className="bg-white">
             <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8">
-                <Link to="/" className="flex items-center gap-2">
+                <Link to={`/timeline/${currentUser}`} className="flex items-center gap-2">
                     <span className="sr-only">Home</span>
                     <img src="/SocialSchema_2.svg" alt="Logo" className="h-8 w-8" />
                 </Link>
@@ -27,11 +27,15 @@ const Header = () => {
                     <nav aria-label="Global" className="hidden md:block">
                         <ul className="flex items-center gap-6 text-sm">
                             <li>
-                                <Link to="/">Home</Link>
+                                <Link to={`/timeline/${currentUser}`}>Home</Link>
                             </li>
 
                             <li>
                                 <Link to="/search">Search</Link>
+                            </li>
+
+                            <li>
+                                <Link to="/date-range">Date Range</Link>
                             </li>
 
                             <li>

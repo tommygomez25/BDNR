@@ -23,7 +23,7 @@ async function storeAllData() {
     try {
         // Load data from JSON files
         const usersData = JSON.parse(fs.readFileSync('../data/users.json', 'utf8'));
-        const postsData = JSON.parse(fs.readFileSync('../data/posts.json', 'utf8'));
+        const postsData = JSON.parse(fs.readFileSync('../data/date_posts.json', 'utf8'));
         const commentsData = JSON.parse(fs.readFileSync('../data/comments.json', 'utf8'));
         const messagesData = JSON.parse(fs.readFileSync('../data/user_messages.json', 'utf8'));
         const chatsData = JSON.parse(fs.readFileSync('../data/user_chats.json', 'utf8'));
@@ -43,11 +43,17 @@ async function storeAllData() {
             await Promise.all(batch.map(user => storeData('User', user.username, user)));
         }
 
-        // Clear chat data
-        await clearData('Chat');
+        // store posts data with secondary index being the user id
+        for (let i = 0; i < postsData.length; i += 100) {
+            const batch = postsData.slice(i, i + 100);
+            await Promise.all(batch.map(post => storeDataWithSecIndex('Post', post.id.toString(), post)));
+        }
 
-        console.log('Chat data cleared.');
-        console.log(chatsData.length)
+        // Clear chat data
+        // await clearData('Chat');
+
+        // console.log('Chat data cleared.');
+        // console.log(chatsData.length)
 
         // Store chats data
         for (let i = 0; i < chatsData.length; i += 100) {
@@ -61,6 +67,8 @@ async function storeAllData() {
 
         const batchSize = 100;
 
+        // clear messages data
+        // await clearData('Message');
 
         // Store messages data
         for (let i = 0; i < messagesData.length; i += batchSize) {
@@ -71,6 +79,10 @@ async function storeAllData() {
         await checkDataStored('Message', 'faylesburyci:gpaice38:1');
         console.log('Message data stored successfully.');
 
+        // clear follows data
+        // await clearData('Follows');
+        console.log('Follows data cleared.');
+
         // Store follows data
         for (let i = 0; i < followsData.length; i += batchSize) {
             const batch = followsData.slice(i, i + batchSize);
@@ -78,6 +90,10 @@ async function storeAllData() {
         }
 
         await checkDataStored('Follows', 'gwindram0');
+
+        // clear followers data
+        // await clearData('Followers');
+        console.log('Followers data cleared.');
 
         // Store followers data
         for (let i = 0; i < followersData.length; i += batchSize) {
@@ -87,6 +103,9 @@ async function storeAllData() {
 
         await checkDataStored('Followers', 'gwindram0');
 
+        // clear favorite data
+        // await clearData('Favorite');
+        console.log('Favorite data cleared.');
 
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
@@ -96,15 +115,13 @@ async function storeAllData() {
 
         await checkDataStored('Favorite', '1');
 
-        // store posts data with secondary index being the user id
-        for (let i = 0; i < postsData.length; i += batchSize) {
-            const batch = postsData.slice(i, i + batchSize);
-            await Promise.all(batch.map(function(post) { 
-                storeDataWithSecIndex('Post', post.id.toString(), post);
-            }));
-        }
+        // clear post data
+        // await clearData('Post');
+        // console.log('Post data cleared.');
 
         await checkDataStored('Post', '1');
+
+        console.log('Post data stored successfully.');
 
         for (const user of usersData) {
             const userBucket = user.username;
@@ -132,11 +149,12 @@ async function storeAllData() {
 async function storeDataWithSecIndex(bucket, key, value) {
 
     if (bucket === 'Post') {
+        console.log('Storing data in bucket:', bucket, 'with value:', value);
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
-            riakObj.addToIndex('username_bin', value.username);
+            riakObj.addToIndex('timestamp_bin', value.timestamp);
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {

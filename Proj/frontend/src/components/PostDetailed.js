@@ -82,10 +82,14 @@ const PostDetailed = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        const response = await axios.delete(`http://localhost:5000/post/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
+        const payload = {
+          username: post.username,
+          postDate: post.postDate,
+          postTime: post.postTime
+        };
+        const response = await axios.delete(`http://localhost:5000/post/${id}`, {data: payload }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }});
         if (response.status === 204) {
           alert('Post deleted successfully');
-          navigate('/');
         }
       } catch (error) {
         console.error('Error deleting post:', error);
@@ -151,6 +155,7 @@ const PostDetailed = () => {
             </div>
             <p className="text-gray-700">{post.content}</p>
             <p className="text-gray-600 text-xs">Likes: {post.numLikes}</p>
+            <p className='text-gray-600 text-xs'>Score: {post.popularityScore}</p>
           </div>
           <div className='p-4'>
             <h2 className="text-xl font-semibold mt-2 mx-5">Comments:</h2>

@@ -3,7 +3,7 @@ const router = express.Router();
 const { getUserByUsername, getFavoritePostsByUsername, getNumFollowersByUsername, 
     getNumFollowingByUsername, getTotalNumLikesByUsername } = require('./controllers/userController');
 const { registerUser,loginUser, validateToken, getCurrentUser } = require('./controllers/authController');
-const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost, searchPost, likePost } = require('./controllers/postController');
+const { getPostsByUsername, createPost, getPostById, deletePostById, updatePost, searchPost, likePost, getPostsByDataRange, deletePostByUsernameAndTimestamp } = require('./controllers/postController');
 const { getCommentsByUsername } = require('./controllers/commentController');
 const { getTimeline } = require('./controllers/timelineController');
 const { createFavorite, checkFavorite, deleteFavorite, getFavorites } = require('./controllers/favoriteController');
@@ -72,12 +72,25 @@ router.get('/post/:id', async (req, res) => {
 
 router.delete('/post/:id', async (req, res) => {
     const postId = req.params.id;
+    const username = req.body.username;
+    const postDate = req.body.postDate;
+    const postTime = req.body.postTime;
+
     try {
         await deletePostById(postId);
-        res.status(204).send();
     } catch (error) {
         res.status(500).send(error);
     }
+
+    try {
+        await deletePostByUsernameAndTimestamp(username, postDate, postTime);
+        res.status(204).send();
+    }
+    catch (error) {
+        res.status(500).send(error);
+    }
+
+
 });
 
 // update post
@@ -92,6 +105,9 @@ router.get('/num-likes', async (req, res) => {
 
 // like post
 router.post('/like-post/:id', likePost);
+
+// get posts by date range
+router.get('/posts-by-date', getPostsByDataRange);
 
 // timeline for a user
 router.get('/timeline/:username', async (req, res) => {

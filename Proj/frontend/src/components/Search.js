@@ -29,7 +29,7 @@ const Search = () => {
     return (
         <div className='h-screen flex flex-col'>
             <Header />
-            <div className='shadow-lg bg-white p-4 my-4 mb-auto mx-auto w-7/12 rounded'>
+            <div className='shadow-lg overflow-y-auto max-h-[70vh] bg-white p-4 my-4 my-auto mx-auto w-7/12 rounded'>
                 <form className='flex m-5 gap-x-4' onSubmit={handleSubmit}>
                     <input type='text' placeholder='Search for posts...' onChange={(e) => {setSearchTerm(e.target.value)}} className='px-5 py-2.5 bg-neutral-200 rounded-md block w-full' />
                     <button className='block rounded-md bg-sky-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-sky-700/75'>Search</button>

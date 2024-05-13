@@ -9,6 +9,7 @@ const client = new Riak.Client(cluster);
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const { route } = require('../routes');
+const { forEach } = require('curlrequest/errors');
 
 const options = {
     hour: '2-digit',
@@ -113,6 +114,19 @@ const deletePostById = (id) => {
         });
     });
 };
+
+const deletePostByUsernameAndTimestamp = (username, postDate, postTime) => {
+    return new Promise((resolve, reject) => {
+        client.deleteValue({ bucket: username, key: 'post_' + postDate + '_' + postTime }, (err, rslt) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rslt);
+            }
+        });
+    });
+}
+        
 
 const updatePost = async (req, res) => {
     const postId = req.params.id;
@@ -221,7 +235,9 @@ const likePost = async (req, res) => {
         const post = await getPostById(postId);
         post.numLikes += 1;
 
-        const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username, post.comments, post.popularityScore);
+        const popularityScore = post.popularityScore + 1;
+
+        const newPost = new Post(post.id, post.title, post.content, post.postDate, post.postTime, post.numLikes, post.numFavs, post.postPrivacy, post.wasEdited, post.username, post.comments, popularityScore);
 
         await newPost.save();
 
@@ -234,7 +250,52 @@ const likePost = async (req, res) => {
             res.status(500).send(error);
         }
     }
+};
+
+const getPostKeysByDateRange = (startDate, endDate) => {
+    const pushKeys = [];
+    return new Promise((resolve, reject) => {
+        client.secondaryIndexQuery({ bucket: 'Post', indexName: 'timestamp_bin', rangeStart: startDate, rangeEnd: endDate }, (err, rslt) => {
+            if (err) {
+                reject(err);
+            } else {
+
+                console.log('rslt: ', rslt);
+                rslt.values.forEach(value => {
+                    pushKeys.push(value.objectKey);
+                });
+
+                if(rslt.done) {
+                    resolve(pushKeys);
+                }
+            }
+        });
+
+
+    });
 }
+
+const getPostsByDataRange = async (req, res) => {
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    const posts = [];
+    const postKeys = await getPostKeysByDateRange(startDate, endDate);
+
+    console.log('postKeys: ', postKeys);
+
+    for(const key of postKeys) {
+        const post = await getPostById(key);
+        console.log('post: ', post);
+        posts.push(post);
+    }
+
+    // Sort by timestamp
+    posts.sort((a, b) => a.timestamp - b.timestamp);
+
+    res.status(200).send(posts);
+};
+
+
 
 module.exports = {
     getPostsByUsername,
@@ -243,6 +304,8 @@ module.exports = {
     updatePost,
     createPost,
     searchPost,
-    likePost
+    likePost,
+    getPostsByDataRange,
+    deletePostByUsernameAndTimestamp
 };
 

@@ -1,6 +1,4 @@
-// App.js
-
-import {React, useEffect, useState} from 'react';
+import {React} from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UserProfile from './components/UserProfile';
 import LoginForm from './components/LoginForm';
@@ -14,6 +12,8 @@ import Search from './components/Search';
 import Chats from './components/Chats';
 import Chat from './components/Chat';
 import NewChatForm from './components/NewChatForm';
+import DateRange from './components/DateRange';
+import NewPost from './components/NewPost';
 
 function App() {
 
@@ -32,6 +32,8 @@ function App() {
           <Route path={"/chats/:username"} element={<Chats />} />
           <Route path={"/chat/:id"} element={<Chat />} />
           <Route path={"/new-chat/:username"} element={<NewChatForm />} />
+          <Route path={"/date-range"} element={<DateRange />} />
+          <Route path={"/create-post"} element={<NewPost />} />
         </Routes>
       </Router>
     </TokenProvider>

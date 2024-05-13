@@ -104,8 +104,7 @@ class Favorite {
                     console.log("Post ID:", postID);
                     // check if the postID is in the list of favorites
                     let isFavorited = false;
-
-                    for (let i = 0; i < values[0].postIDs.length; i++) {
+                    for (let i = 0; i < values[0]?.postIDs.length; i++) {
                         if(values[0].postIDs.includes(postID)) {
                             isFavorited = true;
                             break;

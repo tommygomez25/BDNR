@@ -2,8 +2,7 @@ import Header from './Header';
 import Footer from './Footer';
 import CreatePost from "./CreatePost";
 
-
-const Home = () => {
+function NewPost() {
     return (
         <div className='h-screen flex flex-col'>
             <Header />
@@ -14,4 +13,5 @@ const Home = () => {
         </div>
     );
 }
-export default Home;
+
+export default NewPost;

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Header from './Header';
 import Footer from './Footer';
 import { useParams } from 'react-router-dom';
+import { TokenContext } from './TokenContext';
 
 const Chats = () => {
 
     const [messages, setMessages] = useState([]);
     const username = useParams().username;
+    const { currentUser } = useContext(TokenContext);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -24,7 +26,7 @@ const Chats = () => {
         };
 
         fetchMessages();
-    }, []);
+    }, [username]);
 
 
     return (
@@ -40,6 +42,7 @@ const Chats = () => {
                             </svg>
                             <div className='bg-neutral-100 p-4 rounded-md w-full'>
                                 <a href={`/chat/${chat.id}`} className='text-xl transition font-medium hover:text-sky-700/75 text-sky-700'>{chat.title}</a>
+                                <p className='font-medium'>Chatting with: {chat.id.split(':').filter(user => user !== currentUser)[0]}</p>
                                 <div className='flex gap-x-2 text-sm text-neutral-400'>
                                     <p className='font-medium'>Date Created: {chat.dateCreated}</p>
                                     <p className='font-medium'>Time Created: {chat.timeCreated}</p>
