@@ -37,7 +37,6 @@ class Message {
         const cluster = new Riak.Cluster({ nodes: [node] });
         const client = new Riak.Client(cluster);
 
-        // get the length of the keys in the bucket with the id in the key
         let keyLength = 0;
 
         let keyLength_1 = await new Promise((resolve, reject) => {
@@ -45,7 +44,6 @@ class Message {
                 if (err) {
                     reject(err);
                 } else {
-                    // iterate through the keys and get the length of the keys
                     if (rslt.keys.length === 0) {
                         resolve(keyLength);
                     }
@@ -63,7 +61,6 @@ class Message {
 
         keyLength_1 = keyLength + 1;
 
-        // create a new message with the key length plus 1
         const message = new Message(id + ':' + keyLength_1, content, dateSent, timeSent, sender, receiver, id);
         console.log('Message:', message);
         message.save();
@@ -91,7 +88,6 @@ class Message {
                     const message = JSON.parse(rslt.values.shift().value.toString('utf8'));
                     messages.push(message);
                     messageID++;
-                    // Fetch the next message
                     fetchNextMessage();
                 }
             });

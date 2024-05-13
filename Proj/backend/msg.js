@@ -6,7 +6,6 @@ var logger = require('winston');
 var fs = require('fs');
 var Riak = require('basho-riak-client');
 
-// Configurar o cliente Riak
 const node = new Riak.Node({ remoteAddress: '127.0.0.1', remotePort: 8087 });
 const cluster = new Riak.Cluster({ nodes: [node] });
 const client = new Riak.Client(cluster);
@@ -30,17 +29,7 @@ function query_cb(err, rslt) {
             }));
     }
 }
-/*
-var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
-    .withBucketType('default')
-    .withBucket('Post')
-    .withIndexName('username_bin')
-    .withIndexKey('privaldl')
-    .withCallback(query_cb)
-    .build();
 
-*/
-// get all comments for username ckettoelx using sec index
 
 var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withBucketType('default')
@@ -58,7 +47,6 @@ var cmd = new Riak.Commands.KV.SecondaryIndexQuery.Builder()
     .withCallback(query_cb)
     .build();
 
-// get using key , in user buycket
 var cmd = new Riak.Commands.KV.FetchValue.Builder()
     .withBucketType('default')
     .withBucket('User')
@@ -75,7 +63,6 @@ var cmd = new Riak.Commands.KV.FetchValue.Builder()
     })
     .build();
 
-// get using key , in post buycket
 var cmd = new Riak.Commands.KV.FetchValue.Builder()
     .withBucketType('default')
     .withBucket('Post')

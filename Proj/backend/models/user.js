@@ -1,5 +1,3 @@
-// UserModel.js
-
 const Riak = require('basho-riak-client');
 const bcrypt = require('bcrypt');
 

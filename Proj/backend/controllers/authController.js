@@ -5,7 +5,6 @@ const { getUserByUsername } = require('../controllers/userController');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 
-// is valid password
 const isValidPassword = async (password, hash) => {
     return await bcrypt.compare(password, hash);
 };

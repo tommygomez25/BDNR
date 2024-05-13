@@ -13,8 +13,7 @@ const Chat = () => {
 
     const sendMessage = async (e) => {
         e.preventDefault();
-
-        // the receiver is the user that is in the id but not the current user
+        
         const receiver = id.split(':').filter(user => user !== currentUser)[0];
 
         if(!message) return alert('Please type a message!');

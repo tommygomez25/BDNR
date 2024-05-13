@@ -29,8 +29,6 @@ async function listAndPrintBucketContent(bucket) {
                 }
             });
         });
-
-        // Use the keys property from the response object
         const keys = response.keys;
 
         console.log('keys: ', keys);

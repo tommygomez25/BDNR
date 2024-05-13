@@ -24,7 +24,6 @@ async function deleteAllData() {
     try {
         const buckets = ['User', 'Comment', 'Chat', 'Follows', 'Followers', 'Message', 'Favorite', 'Post'];
 
-        // Iterate over each bucket and delete its contents
         await Promise.all(buckets.map(bucket => deleteBucketData(bucket)));
 
         console.log('All data deleted successfully.');
@@ -35,12 +34,10 @@ async function deleteAllData() {
 
 async function deleteBucketData(bucket) {
     try {
-        // Fetch keys from the bucket
         const keys = await fetchKeys(bucket);
 
         console.log('KEYS: ', keys)
-
-        // Delete each key from the bucket
+        
         await Promise.all(keys.map(key => deleteData(bucket, key)));
 
         console.log(`Deleted all data from bucket '${bucket}'.`);

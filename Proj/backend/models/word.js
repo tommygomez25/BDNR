@@ -19,7 +19,6 @@ save() {
     return new Promise((resolve, reject) => {
         client.storeValue({ bucket: 'Words', key: this.word, value: riakSet }, (err, rslt) => {
             if (err) {
-                // key is string , < 100
                 if ( parseInt(key) < 1000) {
                     console.error(`Error storing data in bucket 'words' with key '${this.word}':`, err);
                 }

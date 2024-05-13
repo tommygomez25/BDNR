@@ -22,8 +22,7 @@ const DateRange = () => {
             e.preventDefault();
 
             if(!dateRange.startDate || !dateRange.endDate) return alert('Please select a start and end date.');
-
-            // convert startDate and endDate to timestamps not in milliseconds but in seconds
+            
             const auxDateRange = { ...dateRange };
             auxDateRange.startDate = new Date(dateRange.startDate).getTime() / 1000;
             auxDateRange.endDate = new Date(dateRange.endDate).getTime() / 1000;

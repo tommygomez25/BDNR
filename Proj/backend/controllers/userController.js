@@ -34,12 +34,11 @@ const getFavoritePostsByUsername = (username) => {
             }
             if (result.values.length === 0) {
                 console.log('No favorites found');
-                return resolve([]); // No favorites found
+                return resolve([]);
             }
 
             const postIds = JSON.parse(result.values.length > 0 ? result.values[0].value.toString() : '{}');
             console.log('Post IDs:', postIds);
-            // make postIds an array of strings
             const postIdsArray = postIds.postIDs.map(postId => postId.toString());
             console.log('Post IDs:', postIdsArray);
 

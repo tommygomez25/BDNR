@@ -94,7 +94,7 @@ class Chat {
                     console.log("===");
         
                     if (rslt.keys.length === 0) {
-                        resolve(chats);  // Resolve with empty array if no keys found
+                        resolve(chats);
                     }
         
                     rslt.keys.forEach(key => {

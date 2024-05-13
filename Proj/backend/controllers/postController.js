@@ -28,7 +28,6 @@ const createPost = async (req, res) => {
 
         const username = decodedToken.username;
 
-        // id must be greater than 1001
         const id = Math.floor(Math.random() * 1000000) + 1001;
         const postDate = new Date().toLocaleDateString();
         const postTime = new Date().toLocaleTimeString('en-US', options);
@@ -36,26 +35,18 @@ const createPost = async (req, res) => {
         const numFavs = 0;
         const wasEdited = false;
         const comments = [];
-        // popularirty score is diff between post date and 1/1/2001
         const popularityScore = moment(postDate, 'MM/DD/YYYY').diff(moment('01/01/2001', 'MM/DD/YYYY'), 'days') * 10;
 
         const post = new Post(id, title, content, postDate, postTime, numLikes, numFavs, postPrivacy, wasEdited, username, comments, popularityScore);
 
         await post.save();
 
-        // break title into array of words
         const titleWords = [...new Set(title.split(' '))];
-        console.log('titleWords: ', titleWords);
 
-        // for each word check if they have an entry in the Words bucket
-        // if they do, append the post id to the list of post ids
-        // if they don't, create a new entry with the post id
         titleWords.forEach(async word => {
             const wordKey = word.toLowerCase();
             try {
                 const postIds = await getKeywordPostIds(wordKey);
-                console.log('postIds: ', postIds);
-                console.log('post.id: ', post.id);
                 postIds.push(post.id);
                 const uniquePostIds = [...new Set(postIds)];
                 const newWord = new Word(wordKey, uniquePostIds);
@@ -179,18 +170,11 @@ const updatePost = async (req, res) => {
         const { title, content, postPrivacy } = req.body;
 
         if ( title !== post.title ) {
-            // break old title into array of words
             const oldTitleWords = post.title.split(' ');
 
-            // break new title into array of words
             const newTitleWords = title.split(' ');
 
-            // remove from old title words any words that are in new title words
             const wordsToRemove = oldTitleWords.filter(word => !newTitleWords.includes(word));
-
-            console.log('wordsToRemove: ', wordsToRemove);
-
-            // for each word in words to remove, remove the post id from the list of post ids
             wordsToRemove.forEach(async word => {
                 const wordKey = word.toLowerCase();
                 try {
@@ -208,9 +192,6 @@ const updatePost = async (req, res) => {
                 }
             });
 
-            // for each word in new title words, check if they have an entry in the Words bucket
-            // if they do, append the post id to the list of post ids
-            // if they don't, create a new entry with the post id
             newTitleWords.forEach(async word => {
                 const wordKey = word.toLowerCase();
                 try {
@@ -273,8 +254,6 @@ const getKeywordPostIds = (keyword) => {
 };
 
 const searchPost = async (req, res) => {
-
-    // Convert keywords which is comma separated into array of words
     const arrayKeywords = req.query.keywords.split(',');
     const keywords = arrayKeywords.map(keyword => keyword.trim());
 

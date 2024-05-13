@@ -77,17 +77,12 @@ mapReduceQuery = {
 };
 
 
-
-
-// Convertendo a consulta MapReduce em uma string
 var mapReduceString = JSON.stringify(mapReduceQuery);
 
-// curl mapred
 var curl = require('curlrequest');
 var curlCommand = `curl -XPOST http://localhost:8098/mapred --data '${mapReduceString}' -H "Content-Type: application/json"`;
 console.log('curl command:', curlCommand);
 
-// Executando a consulta MapReduce
 curl.request({ url: 'http://localhost:8098/mapred', method: 'POST', data: mapReduceString, headers: { 'Content-Type': 'application/json' } }, function (err, data) {
     if (err) {
         throw new Error(err);

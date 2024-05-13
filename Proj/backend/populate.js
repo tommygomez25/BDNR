@@ -49,12 +49,6 @@ async function storeAllData() {
             await Promise.all(batch.map(post => storeDataWithSecIndex('Post', post.id.toString(), post)));
         }
 
-        // Clear chat data
-        // await clearData('Chat');
-
-        // console.log('Chat data cleared.');
-        // console.log(chatsData.length)
-
         // Store chats data
         for (let i = 0; i < chatsData.length; i += 100) {
             const batch = chatsData.slice(i, i + 100);
@@ -67,9 +61,6 @@ async function storeAllData() {
 
         const batchSize = 100;
 
-        // clear messages data
-        // await clearData('Message');
-
         // Store messages data
         for (let i = 0; i < messagesData.length; i += batchSize) {
             const batch = messagesData.slice(i, i + batchSize);
@@ -79,10 +70,6 @@ async function storeAllData() {
         await checkDataStored('Message', 'faylesburyci:gpaice38:1');
         console.log('Message data stored successfully.');
 
-        // clear follows data
-        // await clearData('Follows');
-        console.log('Follows data cleared.');
-
         // Store follows data
         for (let i = 0; i < followsData.length; i += batchSize) {
             const batch = followsData.slice(i, i + batchSize);
@@ -90,10 +77,6 @@ async function storeAllData() {
         }
 
         await checkDataStored('Follows', 'gwindram0');
-
-        // clear followers data
-        // await clearData('Followers');
-        console.log('Followers data cleared.');
 
         // Store followers data
         for (let i = 0; i < followersData.length; i += batchSize) {
@@ -103,10 +86,6 @@ async function storeAllData() {
 
         await checkDataStored('Followers', 'gwindram0');
 
-        // clear favorite data
-        // await clearData('Favorite');
-        console.log('Favorite data cleared.');
-
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
             const batch = favoritesData.slice(i, i + batchSize);
@@ -114,10 +93,6 @@ async function storeAllData() {
         }
 
         await checkDataStored('Favorite', '1');
-
-        // clear post data
-        // await clearData('Post');
-        // console.log('Post data cleared.');
 
         await checkDataStored('Post', '1');
 
@@ -172,7 +147,7 @@ async function storeDataWithSecIndex(bucket, key, value) {
     }
 
     else if (bucket === 'Favorite') {
-        // sec index for postID and userID
+        // secondary index for postID and userID
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
@@ -196,12 +171,11 @@ async function storeDataWithSecIndex(bucket, key, value) {
     }
 
     else if (bucket === 'Chat') {
-        // sec index for user1 and user2
+        // secondary index for user1 and user2
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
-            // split key to get user1 and user2
             const users = key.split(':');
             riakObj.addToIndex('users_bin', users[0]);
             riakObj.addToIndex('users_bin', users[1]);
@@ -230,7 +204,6 @@ async function storeData(bucket, key, value) {
         await new Promise((resolve, reject) => {
             client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                 if (err) {
-                    // key is string , < 100
                     if ( parseInt(key) < 1000) {
                         console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
                     }
@@ -259,7 +232,6 @@ async function storeSet(bucket, key, value) {
         await new Promise((resolve, reject) => {
             client.storeValue({ bucket: bucket, key: key, value: riakSet }, (err, rslt) => {
                 if (err) {
-                    // key is string , < 100
                     if ( parseInt(key) < 1000) {
                         console.error(`Error storing data in bucket '${bucket}' with key '${key}':`, err);
                     }
