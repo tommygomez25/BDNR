@@ -20,6 +20,15 @@ for favorite in favorites:
         # Create a new list with the first post ID
         user_posts[username] = [postID]
 
+favs = []
+      
+for username, posts in user_posts.items():
+    fav = {
+        'username': username,
+        'postIDs': posts
+    }
+    favs.append(fav)
+
 # Save the data to a new JSON file
 with open('./data/user_posts.json', 'w') as f:
-    json.dump(user_posts, f, indent=4)
+    json.dump(favs, f, indent=4)

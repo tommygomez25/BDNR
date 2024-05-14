@@ -29,7 +29,7 @@ async function storeAllData() {
         const chatsData = JSON.parse(fs.readFileSync('../data/user_chats.json', 'utf8'));
         const followsData = JSON.parse(fs.readFileSync('../data/follows.json', 'utf8'));
         const followersData = JSON.parse(fs.readFileSync('../data/followers.json', 'utf8'));
-        const favoritesData = JSON.parse(fs.readFileSync('../data/favorites.json', 'utf8'));
+        const favoritesData = JSON.parse(fs.readFileSync('../data/user_posts.json', 'utf8'));
         const wordsData = JSON.parse(fs.readFileSync('../data/words.json', 'utf8'));
 
         for (const key of Object.keys(wordsData)) {
@@ -89,7 +89,7 @@ async function storeAllData() {
         // Store favorites data
         for (let i = 0; i < favoritesData.length; i += batchSize) {
             const batch = favoritesData.slice(i, i + batchSize);
-            await Promise.all(batch.map(favorite => storeDataWithSecIndex('Favorite', favorite.id.toString(), favorite)));
+            await Promise.all(batch.map(favorite => storeData('Favorite', favorite.username, favorite)));
         }
 
         await checkDataStored('Favorite', '1');
@@ -124,7 +124,6 @@ async function storeAllData() {
 async function storeDataWithSecIndex(bucket, key, value) {
 
     if (bucket === 'Post') {
-        console.log('Storing data in bucket:', bucket, 'with value:', value);
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
@@ -147,13 +146,15 @@ async function storeDataWithSecIndex(bucket, key, value) {
     }
 
     else if (bucket === 'Favorite') {
+        console.log('Storing data in bucket:', bucket, 'with value:', value);
         // secondary index for postID and userID
         try {
             const riakObj = new Riak.Commands.KV.RiakObject();
             riakObj.setContentType('application/json');
             riakObj.setValue(JSON.stringify(value));
-            riakObj.addToIndex('postID_bin', value.postID.toString());
-            riakObj.addToIndex('username_bin', value.username.toString());
+
+            console.log('Storing data in bucket:', bucket, 'with value:', value);
+
             await new Promise((resolve, reject) => {
                 client.storeValue({ bucket: bucket, key: key, value: riakObj }, (err, rslt) => {
                     if (err) {

@@ -66,7 +66,10 @@ class Favorite {
 
                 } else {
                     const values = rslt.values.map(value => JSON.parse(value.value.toString('utf8')));
-                    const postIDs = values[0].postIDs;
+                    let postIDs = [];
+                    if(values[0]?.postIDs) {
+                        postIDs = values[0].postIDs;
+                    }
                     postIDs.push(postID);
                     const riakObj = new Riak.Commands.KV.RiakObject();
                     riakObj.setContentType('application/json');
